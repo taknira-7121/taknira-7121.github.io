@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>名古屋・冬日私旅手札</title>
+    
+    <!-- 引入字體與圖標 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6', // Teal
+                            600: '#0d9488',
+                            700: '#0f766e',
+                        },
+                        stone: {
+                            50: '#fafaf9',
+                            100: '#f5f5f4',
+                            800: '#292524',
+                        },
+                        accent: {
+                            lime: '#84cc16',
+                            pink: '#f472b6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Inter"', '"Noto Sans TC"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 全局樣式微調 */
+        body {
+            background-color: #f7f9f6; /* 極淺的灰綠色 */
+            color: #44403c; /* Stone 700 */
+            -webkit-tap-highlight-color: transparent;
+            padding-bottom: 80px; /* 留給底部導航 */
+        }
+        
+        /* 隱藏滾動條但保留功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 卡片玻璃擬態與陰影 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        /* 底部導航按鈕動畫 */
+        .nav-btn.active {
+            color: #0d9488;
+        }
+        .nav-btn.active i {
+            transform: translateY(-2px);
+        }
+        .nav-btn.active span {
+            font-weight: 500;
+        }
+
+        /* 自定義 Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #0d9488;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #0d9488;
+        }
+        
+        /* 頁面切換動畫 */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .page-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* AI Chat Styles */
+        .chat-bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            position: relative;
+            word-wrap: break-word;
+        }
+        .chat-bubble.user {
+            background-color: #0d9488; /* Brand 600 */
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-bubble.ai {
+            background-color: #ffffff;
+            color: #44403c;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #f0fdfa;
+        }
+        .ai-fab {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #14b8a6, #0f766e);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
+            z-index: 50;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .ai-fab:active {
+            transform: scale(0.95);
+        }
+        .ai-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #f7f9f6;
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .ai-modal.open {
+            transform: translateY(0);
+        }
+        /* Markdown style tweaks for AI response */
+        .chat-bubble.ai strong { font-weight: 600; color: #0f766e; }
+        .chat-bubble.ai ul { margin-left: 1.2em; list-style-type: disc; }
+        .chat-bubble.ai ol { margin-left: 1.2em; list-style-type: decimal; }
+        
+        /* Typing indicator */
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #ccc;
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+    </style>
+</head>
+<body>
+
+    <!-- 頂部 Header -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-b border-stone-100 px-6 py-4 shadow-sm transition-all duration-300" id="main-header">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-brand-700 tracking-wide">Nagoya Trip</h1>
+                <p class="text-xs text-stone-400 font-light tracking-widest">2026.01.02 - 01.09</p>
+            </div>
+            <div class="w-10 h-10 bg-brand-50 rounded-full flex items-center justify-center text-brand-600 shadow-inner cursor-pointer" onclick="toggleAI()">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- 佔位符，防止內容被 Fixed Header 遮擋 -->
+    <div class="h-20"></div>
+
+    <!-- ==================== PAGE 1: PLAN (行程表) ==================== -->
+    <section id="page-plan" class="page-section active px-4">
+        <!-- 航班與住宿摘要卡片 -->
+        <div class="glass-card rounded-2xl p-5 mb-6 border-l-4 border-brand-500">
+            <h3 class="text-sm font-bold text-stone-400 uppercase mb-3 tracking-wider">Flight & Stay</h3>
+            <div class="flex justify-between items-center mb-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-plane-departure text-brand-500"></i>
+                    <span class="font-medium">HKG <i class="fa-solid fa-arrow-right text-xs text-stone-300 mx-1"></i> NGO</span>
+                </div>
+                <span class="text-sm bg-brand-50 text-brand-700 px-2 py-0.5 rounded">UO680</span>
+            </div>
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-plane-arrival text-brand-500"></i>
+                    <span class="font-medium">NGO <i class="fa-solid fa-arrow-right text-xs text-stone-300 mx-1"></i> HKG</span>
+                </div>
+                <span class="text-sm bg-brand-50 text-brand-700 px-2 py-0.5 rounded">UO681</span>
+            </div>
+            <div class="border-t border-stone-100 pt-3 flex items-start gap-3">
+                <i class="fa-solid fa-hotel text-accent-lime mt-1"></i>
+                <div>
+                    <p class="font-bold text-stone-700">Nagoya JR Gate Tower Hotel</p>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Nagoya+JR+Gate+Tower+Hotel" target="_blank" class="text-xs text-stone-400 underline mt-1 block">查看地圖</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 每日行程列表容器 -->
+        <div id="itinerary-list" class="space-y-6">
+            <!-- JS 將自動渲染行程 -->
+        </div>
+    </section>
+
+    <!-- ==================== PAGE 2: GUIDE (深度導覽) ==================== -->
+    <section id="page-guide" class="page-section px-4">
+        <h2 class="text-2xl font-bold text-stone-700 mb-6 pl-2 border-l-4 border-accent-lime">深度導覽 Guide</h2>
+        
+        <!-- 白川鄉 -->
+        <div class="glass-card rounded-2xl overflow-hidden mb-8">
+            <div class="h-48 bg-stone-200 relative">
+                <img src="https://images.unsplash.com/photo-1548266652-99cf27701ced?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Shirakawa-go" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+                    <h3 class="text-white font-bold text-lg">白川鄉合掌村</h3>
+                </div>
+            </div>
+            <div class="p-6">
+                <p class="text-stone-600 text-sm leading-relaxed mb-4 text-justify">
+                    1995年被登錄為世界文化遺產。這裡的建築稱為「合掌造」，屋頂呈60度急斜面，狀似雙手合十，是為了防止厚重的積雪壓垮房屋。村落中仍有居民生活，是「活著的遺產」。冬季點燈時，宛如童話世界。
+                </p>
+                <div class="bg-stone-50 p-3 rounded-lg text-xs text-stone-500 mb-4">
+                    <i class="fa-solid fa-lightbulb text-yellow-500 mr-1"></i> <span class="font-bold">冷知識：</span>屋頂的茅草每30-40年需更換一次，全村人會合力完成，稱為「結(Yui)」。
+                </div>
+                <!-- OpenStreetMap iframe for Shirakawa-go -->
+                <div class="w-full h-48 rounded-lg overflow-hidden border border-stone-200">
+                    <iframe width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.openstreetmap.org/export/embed.html?bbox=136.8950%2C36.2500%2C136.9150%2C36.2650&amp;layer=mapnik&amp;marker=36.2560%2C136.9050"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- 伊勢神宮 -->
+        <div class="glass-card rounded-2xl overflow-hidden mb-8">
+            <div class="h-48 bg-stone-200 relative">
+                <img src="https://images.unsplash.com/photo-1572973802388-c89b3a04293f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Ise Jingu" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+                    <h3 class="text-white font-bold text-lg">伊勢神宮 (心靈故鄉)</h3>
+                </div>
+            </div>
+            <div class="p-6">
+                <p class="text-stone-600 text-sm leading-relaxed mb-4 text-justify">
+                    日本人一生必去一次的心靈故鄉。分為供奉豐受大御神的「外宮」與供奉天照大御神的「內宮」。參拜順序傳統上為「先外宮，後內宮」。
+                </p>
+                <div class="bg-stone-50 p-3 rounded-lg text-xs text-stone-500 mb-4">
+                    <i class="fa-solid fa-triangle-exclamation text-brand-500 mr-1"></i> <span class="font-bold">注意：</span>正宮只能在外牆參拜，且內部絕對禁止攝影。
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== PAGE 3: WALLET (記帳與匯率) ==================== -->
+    <section id="page-wallet" class="page-section px-4">
+        <!-- 匯率計算機 -->
+        <div class="glass-card rounded-2xl p-6 mb-6 bg-gradient-to-br from-white to-brand-50">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-stone-700">匯率計算機</h3>
+                <div class="flex items-center gap-2 text-xs">
+                    <span>匯率:</span>
+                    <input type="number" id="exchange-rate" value="0.22" step="0.001" class="w-16 bg-white border border-stone-200 rounded px-2 py-1 text-center font-mono">
+                </div>
+            </div>
+            
+            <div class="relative mb-4">
+                <input type="text" id="calc-input" placeholder="輸入算式 (如 500+200*3)" class="w-full text-2xl font-mono p-3 rounded-xl border border-stone-200 focus:outline-none focus:border-brand-500 bg-white/80 text-right text-stone-800 placeholder:text-sm placeholder:text-stone-300">
+                <span class="absolute left-3 top-4 text-stone-400 text-sm">JPY</span>
+            </div>
+            
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="calculate()" class="bg-brand-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-brand-700 active:scale-95 transition-all text-sm font-bold w-full mr-3">
+                    <i class="fa-solid fa-calculator mr-2"></i>計算
+                </button>
+                <div class="text-right">
+                    <div class="text-xs text-stone-400">約合 HKD</div>
+                    <div id="calc-result" class="text-xl font-bold text-brand-600">0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 記帳輸入區 -->
+        <div class="glass-card rounded-2xl p-6 mb-6">
+            <h3 class="font-bold text-stone-700 mb-4">新增支出</h3>
+            <div class="grid grid-cols-3 gap-3 mb-3">
+                <input type="text" id="expense-item" placeholder="品項" class="col-span-2 p-2 border border-stone-200 rounded-lg text-sm bg-stone-50 focus:bg-white transition-colors">
+                <input type="number" id="expense-amt" placeholder="日幣" class="col-span-1 p-2 border border-stone-200 rounded-lg text-sm bg-stone-50 focus:bg-white transition-colors">
+            </div>
+            
+            <!-- 拍照按鈕 (壓縮處理) -->
+            <div class="flex gap-3 mb-4">
+                <label for="expense-photo" class="flex-1 cursor-pointer bg-stone-100 text-stone-500 rounded-lg border border-dashed border-stone-300 flex items-center justify-center py-2 hover:bg-stone-200 transition-colors text-sm">
+                    <i class="fa-solid fa-camera mr-2"></i><span id="photo-label">拍照/上傳</span>
+                </label>
+                <input type="file" id="expense-photo" accept="image/*" class="hidden" onchange="handleImageUpload(this)">
+                
+                <button onclick="addExpense()" class="flex-1 bg-stone-800 text-white rounded-lg font-bold py-2 shadow hover:bg-stone-900 transition-colors text-sm">
+                    記帳
+                </button>
+            </div>
+            <div id="preview-container" class="hidden mb-2">
+                <img id="image-preview" class="h-20 rounded object-cover border border-stone-200">
+            </div>
+        </div>
+
+        <!-- 記帳列表 -->
+        <div class="mb-4 flex justify-between items-end">
+            <h3 class="font-bold text-stone-700">支出紀錄</h3>
+            <div class="text-xs text-stone-500">
+                總計: <span id="total-jpy" class="font-mono font-bold text-stone-800">0</span> JPY
+            </div>
+        </div>
+        
+        <div id="expense-list" class="space-y-3 pb-8">
+            <!-- JS 渲染列表 -->
+        </div>
+        
+        <div class="text-center mt-4">
+            <button onclick="clearExpenses()" class="text-xs text-red-400 underline p-2">清空所有紀錄</button>
+        </div>
+    </section>
+
+    <!-- ==================== PAGE 4: LISTS (清單) ==================== -->
+    <section id="page-lists" class="page-section px-4">
+        
+        <!-- 行前檢查 -->
+        <div class="glass-card rounded-2xl p-5 mb-6">
+            <h3 class="font-bold text-stone-700 mb-4 flex items-center">
+                <i class="fa-solid fa-suitcase-rolling text-accent-lime mr-2"></i> 行前準備
+            </h3>
+            <div id="checklist-container" class="space-y-2">
+                <!-- JS 渲染 -->
+            </div>
+            <div class="mt-3 flex gap-2">
+                <input type="text" id="new-check-item" placeholder="新增項目..." class="flex-1 border-b border-stone-200 bg-transparent text-sm py-1 focus:outline-none focus:border-brand-500">
+                <button onclick="addCheckItem()" class="text-brand-600 text-sm font-bold">+</button>
+            </div>
+        </div>
+
+        <!-- 備忘錄 -->
+        <div class="glass-card rounded-2xl p-5">
+            <h3 class="font-bold text-stone-700 mb-4 flex items-center">
+                <i class="fa-solid fa-pen-nib text-brand-500 mr-2"></i> 備忘錄 (Memo)
+            </h3>
+            <textarea id="memo-area" class="w-full h-40 bg-brand-50/50 rounded-xl p-4 text-sm text-stone-600 leading-relaxed border-none focus:ring-2 focus:ring-brand-200 resize-none" placeholder="輸入筆記或網址..."></textarea>
+            <div id="memo-links" class="mt-3 flex flex-wrap gap-2">
+                <!-- 自動解析的連結按鈕 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== PAGE 5: INFO (資訊) ==================== -->
+    <section id="page-info" class="page-section px-4">
+        <h2 class="text-2xl font-bold text-stone-700 mb-6 pl-2 border-l-4 border-stone-400">實用資訊 Info</h2>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <a href="https://www.jma.go.jp/bosai/forecast/" target="_blank" class="glass-card p-4 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-stone-50 transition-colors">
+                <i class="fa-solid fa-cloud-sun text-3xl text-sky-400"></i>
+                <span class="text-sm font-bold text-stone-600">天氣預報</span>
+            </a>
+            <a href="https://www.google.com/maps" target="_blank" class="glass-card p-4 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-stone-50 transition-colors">
+                <i class="fa-solid fa-map-location-dot text-3xl text-brand-500"></i>
+                <span class="text-sm font-bold text-stone-600">Google Maps</span>
+            </a>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5 mb-6 border border-red-100">
+            <h3 class="font-bold text-red-500 mb-3"><i class="fa-solid fa-phone-volume mr-2"></i>緊急聯絡</h3>
+            <ul class="space-y-3 text-sm text-stone-600">
+                <li class="flex justify-between border-b border-stone-100 pb-2">
+                    <span>警察局</span>
+                    <a href="tel:110" class="font-mono font-bold text-stone-800">110</a>
+                </li>
+                <li class="flex justify-between border-b border-stone-100 pb-2">
+                    <span>救護車/火警</span>
+                    <a href="tel:119" class="font-mono font-bold text-stone-800">119</a>
+                </li>
+                <li class="flex justify-between">
+                    <span>台北駐日經濟文化代表處</span>
+                    <a href="tel:+81-3-3280-7811" class="font-mono font-bold text-stone-800">03-3280-7811</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5">
+            <h3 class="font-bold text-stone-700 mb-3"><i class="fa-solid fa-circle-exclamation mr-2 text-yellow-500"></i>溫馨提醒</h3>
+            <ul class="list-disc list-outside ml-4 space-y-2 text-sm text-stone-500">
+                <li>日本電壓為100V，插座為雙平腳（與台灣相同），通常不需要轉接頭。</li>
+                <li>入境禁止攜帶肉類製品（含肉乾、香腸）。</li>
+                <li>購物滿 5,500 日圓可憑護照退稅 (Tax Free)。</li>
+                <li>搭乘手扶梯在名古屋通常是「站左邊」（與關東相同，關西站右邊），但觀察前面的人最準。</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ==================== AI FAB & MODAL ==================== -->
+    <div class="ai-fab" onclick="toggleAI()">
+        <i class="fa-solid fa-robot text-2xl"></i>
+    </div>
+
+    <div id="ai-modal" class="ai-modal">
+        <!-- AI Header -->
+        <div class="bg-brand-600 text-white p-4 flex justify-between items-center shadow-md">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-sparkles text-yellow-300"></i>
+                <h3 class="font-bold text-lg">AI 隨身導遊</h3>
+            </div>
+            <button onclick="toggleAI()" class="text-white hover:text-brand-100 transition-colors">
+                <i class="fa-solid fa-chevron-down text-xl"></i>
+            </button>
+        </div>
+
+        <!-- API Key Settings (Collapsed by default) -->
+        <div id="api-key-container" class="bg-brand-50 px-4 py-2 border-b border-brand-100 text-xs flex justify-between items-center">
+            <span class="text-brand-700">API Key 設定</span>
+            <input type="password" id="user-api-key" placeholder="輸入您的 Gemini API Key" class="border border-brand-200 rounded px-2 py-1 w-40 text-stone-700" onchange="saveApiKey(this.value)">
+        </div>
+
+        <!-- Chat Area -->
+        <div id="chat-container" class="flex-1 overflow-y-auto p-4 bg-stone-50 no-scrollbar">
+            <div class="chat-bubble ai">
+                嗨！我是您的名古屋旅遊 AI 助手 👋。<br>
+                我已經讀取了您的行程，您可以問我關於景點的歷史、交通建議，或是請我幫忙翻譯日文喔！<br>
+                <span class="text-xs text-stone-400 mt-2 block">💡 試試看：「明天的午餐推薦吃什麼？」或「請幫我翻譯『我不吃辣』」</span>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 bg-white border-t border-stone-200 flex gap-2 items-end">
+            <textarea id="chat-input" rows="1" class="flex-1 bg-stone-100 border border-stone-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none" placeholder="輸入問題..."></textarea>
+            <button onclick="sendMessage()" class="bg-brand-600 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:bg-brand-700 transition-colors mb-1">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 底部導航列 -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 px-6 py-2 pb-5 z-50 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <button onclick="switchTab('plan')" class="nav-btn active flex flex-col items-center text-stone-400 transition-all duration-300" data-target="plan">
+            <i class="fa-solid fa-calendar-days text-xl mb-1"></i>
+            <span class="text-[10px]">行程</span>
+        </button>
+        <button onclick="switchTab('guide')" class="nav-btn flex flex-col items-center text-stone-400 transition-all duration-300" data-target="guide">
+            <i class="fa-solid fa-book-open text-xl mb-1"></i>
+            <span class="text-[10px]">導覽</span>
+        </button>
+        <button onclick="switchTab('wallet')" class="nav-btn flex flex-col items-center text-stone-400 transition-all duration-300" data-target="wallet">
+            <i class="fa-solid fa-wallet text-xl mb-1"></i>
+            <span class="text-[10px]">錢包</span>
+        </button>
+        <button onclick="switchTab('lists')" class="nav-btn flex flex-col items-center text-stone-400 transition-all duration-300" data-target="lists">
+            <i class="fa-solid fa-list-check text-xl mb-1"></i>
+            <span class="text-[10px]">清單</span>
+        </button>
+        <button onclick="switchTab('info')" class="nav-btn flex flex-col items-center text-stone-400 transition-all duration-300" data-target="info">
+            <i class="fa-solid fa-circle-info text-xl mb-1"></i>
+            <span class="text-[10px]">資訊</span>
+        </button>
+    </nav>
+
+    <script>
+        // ================= DATA =================
+        const tripData = [
+            {
+                day: 1, date: "1/2 (五)", title: "抵達名古屋 - 輕鬆適應",
+                highlight: false,
+                content: [
+                    { type: "time", text: "抵達中部國際機場 -> 市區 Check-in", icon: "fa-plane-arrival" },
+                    { type: "food", text: "晚餐：世界的山將 (手羽先) 或 矢場町味噌豬排", link: "https://www.google.com/maps/search/Sekai+no+Yamachan+Nagoya" },
+                    { type: "stay", text: "住宿：名古屋 JR Gate Tower Hotel", icon: "fa-bed" },
+                    { type: "tip", text: "第一天別排太滿，讓長輩適應室內外溫差。", icon: "fa-heart" }
+                ]
+            },
+            {
+                day: 2, date: "1/3 (六)", title: "名古屋市內悠閒遊",
+                highlight: false,
+                content: [
+                    { type: "spot", text: "上午：熱田神宮 (新年參拜)", link: "https://goo.gl/maps/example" },
+                    { type: "spot", text: "下午：大須觀音商店街 或 德川園", link: "" },
+                    { type: "food", text: "晚餐：蓬萊軒 鰻魚飯三吃 (需預約)", link: "https://www.google.com/maps/search/Atsuta+Horaiken" },
+                    { type: "stay", text: "住宿：續住名古屋", icon: "fa-bed" }
+                ]
+            },
+            {
+                day: 3, date: "1/4 (日)", title: "白川鄉合掌村一日遊",
+                highlight: true, // 包車/跟團 重點標示
+                tag: "巴士團",
+                content: [
+                    { type: "transport", text: "參加名古屋出發一日巴士團 (車接車送)", icon: "fa-bus" },
+                    { type: "spot", text: "參觀「和田家」或「神田家」", link: "" },
+                    { type: "food", text: "午餐：飛驒牛料理", link: "" },
+                    { type: "tip", text: "地面非常滑，走路要極慢！", icon: "fa-snowflake" },
+                    { type: "stay", text: "住宿：續住名古屋 (輕裝)", icon: "fa-bed" }
+                ]
+            },
+            {
+                day: 4, date: "1/5 (一)", title: "前往伊勢神宮",
+                highlight: true,
+                tag: "觀光特急",
+                content: [
+                    { type: "transport", text: "搭乘近鐵觀光特急 Shimakaze 島風號", icon: "fa-train" },
+                    { type: "spot", text: "上午：伊勢神宮（外宮）", link: "" },
+                    { type: "spot", text: "下午：伊勢神宮（內宮） -> 托福橫丁", link: "" },
+                    { type: "food", text: "必吃：赤福、伊勢烏龍麵", link: "" },
+                    { type: "stay", text: "住宿：鳥羽溫泉飯店 (含接送)", icon: "fa-hot-tub-person" }
+                ]
+            },
+            {
+                day: 5, date: "1/6 (二)", title: "鳥羽 - 海女與珍珠",
+                highlight: false,
+                content: [
+                    { type: "spot", text: "上午：鳥羽水族館 (看儒艮)", link: "" },
+                    { type: "exp", text: "午餐：海女小屋體驗 (現烤海鮮)", icon: "fa-fire-burner" },
+                    { type: "spot", text: "下午：御木本珍珠島 (海女表演)", link: "" },
+                    { type: "stay", text: "住宿：續住鳥羽 或 松阪", icon: "fa-bed" }
+                ]
+            },
+            {
+                day: 6, date: "1/7 (三)", title: "松阪頂級和牛 -> 回名古屋",
+                highlight: true,
+                tag: "和牛饗宴",
+                content: [
+                    { type: "spot", text: "上午：松阪城跡 / 御城番屋敷", link: "" },
+                    { type: "food", text: "午餐：松阪牛壽喜燒 (和田金/牛銀)", link: "https://www.google.com/maps/search/Wadakin+Matsusaka" },
+                    { type: "transport", text: "下午：近鐵返回名古屋", icon: "fa-train" },
+                    { type: "stay", text: "住宿：名古屋站周邊", icon: "fa-bed" }
+                ]
+            },
+            {
+                day: 7, date: "1/8 (四)", title: "購物與文化",
+                highlight: false,
+                content: [
+                    { type: "spot", text: "上午：豐田產業技術紀念館 (大推)", link: "" },
+                    { type: "shop", text: "下午：高島屋百貨 / AEON Mall", icon: "fa-bag-shopping" },
+                    { type: "food", text: "晚餐：山本屋總本家 (味噌烏龍麵)", link: "" }
+                ]
+            },
+            {
+                day: 8, date: "1/9 (五)", title: "準備返程",
+                highlight: false,
+                content: [
+                    { type: "transport", text: "搭乘名鐵 u-sky 前往機場", icon: "fa-train" },
+                    { type: "spot", text: "參觀機場 Flight of Dreams (波音787)", link: "" },
+                    { type: "home", text: "平安回家", icon: "fa-house" }
+                ]
+            }
+        ];
+
+        // ================= INIT & RENDER =================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderItinerary();
+            initWallet();
+            initLists();
+            initAI();
+            
+            // 恢復上次瀏覽的分頁 (Optional)
+            // const lastTab = localStorage.getItem('travelApp_lastTab') || 'plan';
+            // switchTab(lastTab);
+        });
+
+        // ================= TAB SWITCHING =================
+        function switchTab(tabId) {
+            // Hide all sections
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            // Show target section
+            document.getElementById(`page-${tabId}`).classList.add('active');
+            
+            // Update Nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.nav-btn[data-target="${tabId}"]`).classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+            
+            // LocalStorage (Optional)
+            // localStorage.setItem('travelApp_lastTab', tabId);
+        }
+
+        // ================= MODULE: PLAN =================
+        function renderItinerary() {
+            const container = document.getElementById('itinerary-list');
+            let html = '';
+
+            tripData.forEach(day => {
+                const isHighlight = day.highlight ? 'border-l-4 border-accent-lime' : '';
+                const tagHtml = day.tag ? `<span class="ml-2 text-xs bg-accent-lime text-white px-2 py-0.5 rounded-full font-bold">${day.tag}</span>` : '';
+                
+                let detailsHtml = '';
+                day.content.forEach(item => {
+                    let icon = 'fa-circle-dot';
+                    let colorClass = 'text-stone-300';
+                    
+                    if(item.type === 'food') { icon = 'fa-utensils'; colorClass = 'text-orange-400'; }
+                    if(item.type === 'transport') { icon = 'fa-train-subway'; colorClass = 'text-blue-400'; }
+                    if(item.type === 'stay') { icon = 'fa-bed'; colorClass = 'text-brand-400'; }
+                    if(item.type === 'tip') { icon = 'fa-heart'; colorClass = 'text-accent-pink'; }
+                    if(item.type === 'shop') { icon = 'fa-bag-shopping'; colorClass = 'text-purple-400'; }
+                    if(item.icon) icon = item.icon; // Override
+
+                    const linkHtml = item.link ? `<a href="${item.link}" target="_blank" class="ml-auto text-xs text-brand-600 border border-brand-200 px-2 py-0.5 rounded hover:bg-brand-50"><i class="fa-solid fa-map-location-dot"></i> 地圖</a>` : '';
+
+                    detailsHtml += `
+                        <div class="flex items-start gap-3 py-2 border-b border-stone-50 last:border-0">
+                            <div class="mt-1 w-5 text-center"><i class="fa-solid ${icon} ${colorClass} text-sm"></i></div>
+                            <div class="flex-1">
+                                <p class="text-sm text-stone-700 ${item.type === 'tip' ? 'text-stone-500 italic bg-stone-50 p-2 rounded' : ''}">${item.text}</p>
+                            </div>
+                            ${linkHtml}
+                        </div>
+                    `;
+                });
+
+                html += `
+                    <div class="glass-card rounded-2xl p-5 ${isHighlight}">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-lg text-brand-700">Day ${day.day} <span class="text-sm font-normal text-stone-400 ml-1">${day.date}</span>${tagHtml}</h3>
+                        </div>
+                        <h4 class="font-bold text-stone-600 mb-3">${day.title}</h4>
+                        <div class="space-y-1">
+                            ${detailsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // ================= MODULE: WALLET =================
+        let expenses = JSON.parse(localStorage.getItem('travelApp_expenses')) || [];
+        let tempImageBase64 = null;
+
+        function initWallet() {
+            renderExpenses();
+            // 監聽匯率變動並存儲
+            const rateInput = document.getElementById('exchange-rate');
+            const savedRate = localStorage.getItem('travelApp_rate');
+            if(savedRate) rateInput.value = savedRate;
+            
+            rateInput.addEventListener('change', (e) => {
+                localStorage.setItem('travelApp_rate', e.target.value);
+                renderExpenses(); // 更新列表顯示的匯率
+            });
+        }
+
+        function calculate() {
+            const input = document.getElementById('calc-input').value;
+            const rate = parseFloat(document.getElementById('exchange-rate').value);
+            const resultDisplay = document.getElementById('calc-result');
+            
+            try {
+                // 安全性過濾: 只允許數字與運算符
+                if(/^[0-9+\-*/().\s]*$/.test(input)) {
+                    // 使用 Function constructor 替代 eval 稍微安全一點
+                    const totalJpy = new Function('return ' + input)();
+                    const totalHkd = (totalJpy * rate).toFixed(2);
+                    
+                    document.getElementById('calc-input').value = totalJpy; // 更新輸入框為結果
+                    resultDisplay.innerText = totalHkd;
+                    
+                    // 自動填入記帳金額
+                    document.getElementById('expense-amt').value = totalJpy;
+                } else {
+                    alert("請輸入正確的算式 (僅限數字與 +, -, *, /)");
+                }
+            } catch (e) {
+                resultDisplay.innerText = "Error";
+            }
+        }
+
+        // 圖片壓縮處理
+        function handleImageUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // 縮放邏輯：最大寬度 300px (縮圖用)
+                        const maxWidth = 300;
+                        const scale = maxWidth / img.width;
+                        const width = maxWidth;
+                        const height = img.height * scale;
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // 壓縮為 JPEG 0.7 品質
+                        tempImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                        
+                        // 顯示預覽
+                        const preview = document.getElementById('image-preview');
+                        preview.src = tempImageBase64;
+                        document.getElementById('preview-container').classList.remove('hidden');
+                        document.getElementById('photo-label').innerText = "已選擇";
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function addExpense() {
+            const item = document.getElementById('expense-item').value;
+            const amt = parseFloat(document.getElementById('expense-amt').value);
+            
+            if(!item || isNaN(amt)) {
+                alert("請輸入品項與金額");
+                return;
+            }
+
+            const newExpense = {
+                id: Date.now(),
+                item: item,
+                amt: amt,
+                img: tempImageBase64,
+                date: new Date().toLocaleDateString()
+            };
+
+            expenses.unshift(newExpense); // 加到最前面
+            localStorage.setItem('travelApp_expenses', JSON.stringify(expenses));
+            
+            // 重置表單
+            document.getElementById('expense-item').value = '';
+            document.getElementById('expense-amt').value = '';
+            document.getElementById('calc-input').value = '';
+            document.getElementById('expense-photo').value = '';
+            document.getElementById('preview-container').classList.add('hidden');
+            document.getElementById('photo-label').innerText = "拍照/上傳";
+            tempImageBase64 = null;
+            
+            renderExpenses();
+        }
+
+        function renderExpenses() {
+            const container = document.getElementById('expense-list');
+            const rate = parseFloat(document.getElementById('exchange-rate').value);
+            let total = 0;
+            let html = '';
+
+            expenses.forEach(ex => {
+                total += ex.amt;
+                const hkd = (ex.amt * rate).toFixed(1);
+                const imgHtml = ex.img ? `<img src="${ex.img}" class="w-10 h-10 rounded object-cover border border-stone-200" onclick="showFullImage('${ex.img}')">` : `<div class="w-10 h-10 rounded bg-stone-100 flex items-center justify-center text-stone-300"><i class="fa-solid fa-receipt"></i></div>`;
+
+                html += `
+                    <div class="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-stone-50">
+                        ${imgHtml}
+                        <div class="flex-1">
+                            <div class="font-bold text-stone-700">${ex.item}</div>
+                            <div class="text-xs text-stone-400">${ex.date}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-mono font-bold text-stone-800">¥${ex.amt}</div>
+                            <div class="text-xs text-brand-600">≈ $${hkd}</div>
+                        </div>
+                        <button onclick="deleteExpense(${ex.id})" class="text-stone-300 hover:text-red-400 px-2"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            document.getElementById('total-jpy').innerText = total.toLocaleString();
+        }
+
+        function deleteExpense(id) {
+            if(confirm("確定刪除此筆紀錄？")) {
+                expenses = expenses.filter(e => e.id !== id);
+                localStorage.setItem('travelApp_expenses', JSON.stringify(expenses));
+                renderExpenses();
+            }
+        }
+        
+        function clearExpenses() {
+            if(confirm("確定清空所有記帳資料？(無法復原)")) {
+                expenses = [];
+                localStorage.setItem('travelApp_expenses', JSON.stringify(expenses));
+                renderExpenses();
+            }
+        }
+
+        // ================= MODULE: LISTS =================
+        let checkList = JSON.parse(localStorage.getItem('travelApp_checklist')) || [
+            {text: "護照", checked: false},
+            {text: "日幣現金", checked: false},
+            {text: "網卡/漫遊", checked: false},
+            {text: "行動電源", checked: false},
+            {text: "長輩常備藥", checked: false}
+        ];
+
+        function initLists() {
+            renderChecklist();
+            
+            // Memo Init
+            const memoArea = document.getElementById('memo-area');
+            memoArea.value = localStorage.getItem('travelApp_memo') || '';
+            
+            memoArea.addEventListener('input', () => {
+                localStorage.setItem('travelApp_memo', memoArea.value);
+            });
+            
+            memoArea.addEventListener('blur', parseMemoLinks);
+            parseMemoLinks(); // init load
+        }
+
+        function renderChecklist() {
+            const container = document.getElementById('checklist-container');
+            let html = '';
+            
+            checkList.forEach((item, index) => {
+                const checkedClass = item.checked ? 'line-through text-stone-300' : 'text-stone-700';
+                html += `
+                    <div class="flex items-center gap-3 group">
+                        <input type="checkbox" id="check-${index}" class="toggle-checkbox w-5 h-5 rounded border-stone-300 text-brand-600 focus:ring-brand-500" ${item.checked ? 'checked' : ''} onchange="toggleCheck(${index})">
+                        <label for="check-${index}" class="flex-1 ${checkedClass} cursor-pointer select-none transition-colors">${item.text}</label>
+                        <button onclick="deleteCheck(${index})" class="text-stone-200 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            localStorage.setItem('travelApp_checklist', JSON.stringify(checkList));
+        }
+
+        function addCheckItem() {
+            const input = document.getElementById('new-check-item');
+            if(input.value.trim()) {
+                checkList.push({text: input.value.trim(), checked: false});
+                input.value = '';
+                renderChecklist();
+            }
+        }
+
+        function toggleCheck(index) {
+            checkList[index].checked = !checkList[index].checked;
+            renderChecklist();
+        }
+        
+        function deleteCheck(index) {
+            checkList.splice(index, 1);
+            renderChecklist();
+        }
+
+        function parseMemoLinks() {
+            const text = document.getElementById('memo-area').value;
+            const container = document.getElementById('memo-links');
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            const urls = text.match(urlRegex);
+            
+            let html = '';
+            if(urls) {
+                urls.forEach(url => {
+                    // 簡單縮短顯示
+                    const display = url.length > 20 ? url.substring(0, 20) + '...' : url;
+                    html += `<a href="${url}" target="_blank" class="text-xs bg-white border border-brand-200 text-brand-600 px-2 py-1 rounded-full hover:bg-brand-50 flex items-center gap-1 shadow-sm"><i class="fa-solid fa-link"></i> ${display}</a>`;
+                });
+            }
+            container.innerHTML = html;
+        }
+
+        // ================= UTILS =================
+        function showFullImage(src) {
+            // 簡單的全螢幕預覽 (可以使用 Modal，這裡從簡)
+            const win = window.open();
+            win.document.write('<img src="' + src + '" style="max-width:100%; height:auto;">');
+        }
+
+        // ================= MODULE: AI GUIDE =================
+        const apiKey = ""; // ⚠️ 重要：下載檔案後請在此填入或使用介面輸入 API Key
+        let chatHistory = [];
+        let userApiKey = localStorage.getItem('travelApp_apiKey') || "";
+
+        function initAI() {
+            const savedKey = localStorage.getItem('travelApp_apiKey');
+            if(savedKey) {
+                document.getElementById('user-api-key').value = savedKey;
+                userApiKey = savedKey;
+            }
+            
+            // Enter 鍵發送
+            document.getElementById('chat-input').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+
+        function toggleAI() {
+            document.getElementById('ai-modal').classList.toggle('open');
+        }
+
+        function saveApiKey(val) {
+            userApiKey = val.trim();
+            localStorage.setItem('travelApp_apiKey', userApiKey);
+        }
+
+        async function sendMessage() {
+            const inputEl = document.getElementById('chat-input');
+            const msg = inputEl.value.trim();
+            if (!msg) return;
+
+            // 1. 顯示用戶訊息
+            appendChat('user', msg);
+            inputEl.value = '';
+
+            // 2. 顯示等待動畫
+            const loadingId = appendLoading();
+
+            // 3. 準備 Context
+            const contextPrompt = `
+                你是一位貼心的名古屋家庭旅遊導遊。
+                你的服務對象包含長輩，所以請特別注意回答的易讀性、並主動提醒休息、廁所或無障礙資訊。
+                
+                這是用戶的旅遊行程 JSON 數據：
+                ${JSON.stringify(tripData)}
+                
+                請根據以上行程與用戶的提問進行回答。
+                回答請使用繁體中文。保持語氣親切、簡潔。
+                如果用戶問翻譯，請提供日文原文與發音。
+            `;
+
+            try {
+                // 優先使用環境變數的 Key (預覽用)，如果沒有則使用用戶輸入的 Key
+                const finalKey = apiKey || userApiKey;
+                
+                if(!finalKey) {
+                    removeChat(loadingId);
+                    appendChat('ai', '請先在上方設定欄輸入您的 Gemini API Key 才能使用 AI 功能喔！');
+                    return;
+                }
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${finalKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [
+                            { role: "user", parts: [{ text: contextPrompt + "\n\n用戶問題：" + msg }] }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                removeChat(loadingId);
+
+                if (data.error) {
+                    appendChat('ai', '抱歉，發生錯誤：' + data.error.message);
+                } else {
+                    const aiText = data.candidates[0].content.parts[0].text;
+                    appendChat('ai', aiText);
+                }
+            } catch (e) {
+                removeChat(loadingId);
+                appendChat('ai', '網路連線錯誤，請稍後再試。');
+                console.error(e);
+            }
+        }
+
+        function appendChat(role, text) {
+            const container = document.getElementById('chat-container');
+            const div = document.createElement('div');
+            div.className = `chat-bubble ${role}`;
+            
+            // 簡單的 Markdown 處理 (Bold, List)
+            let formattedText = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+
+            div.innerHTML = formattedText;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return div; // 回傳 element 以便後續操作
+        }
+
+        function appendLoading() {
+            const container = document.getElementById('chat-container');
+            const div = document.createElement('div');
+            div.id = 'loading-' + Date.now();
+            div.className = 'chat-bubble ai';
+            div.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return div.id;
+        }
+
+        function removeChat(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+    </script>
+</body>
+</html>
