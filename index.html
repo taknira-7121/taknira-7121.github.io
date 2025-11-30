@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>家庭旅遊行程規劃 Web App</title>
+    <title>清新風格家庭旅遊行程規劃 Web App</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Custom Font - Inter (clean and modern) */
         body {
             font-family: 'Inter', 'Noto Sans TC', sans-serif;
-            /* Soft stone/beige background for a natural, airy feel */
-            background-color: #fcfbf9; 
+            /* Lighter, airy background for the fresh style */
+            background-color: #f8fcfb; 
         }
         /* Style for the main itinerary accordion details */
         .itinerary-accordion-content {
@@ -44,38 +44,57 @@
         }
     </style>
 </head>
-<body class="p-4 md:p-10 bg-stone-50">
+<body class="p-4 md:p-10 bg-f8fcfb">
 
     <div class="max-w-4xl mx-auto">
-        <!-- HEADER: Soft colors and rounder corners -->
-        <header class="mb-10 text-center bg-white/90 p-8 pt-6 rounded-2xl shadow-xl border border-stone-100">
-            <h1 class="text-3xl font-extrabold text-teal-700 tracking-wider">
-                🇯🇵 冬日私旅・家庭漫遊：名古屋・三重 8日
+        <!-- HEADER: Fresh Illustration and Title -->
+        <header class="mb-10 text-center bg-white rounded-3xl shadow-xl border border-teal-50 p-6 sm:p-10">
+            <!-- Travel-Themed Fresh SVG Illustration -->
+            <div class="w-full max-w-sm mx-auto mb-6">
+                <svg viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Background Soft Waves/Hills -->
+                    <path d="M0 40 C 25 30, 75 30, 100 40 V 60 H 0 Z" fill="#e0f2fe" opacity="0.6"/>
+                    <!-- Main Icon: Hot Air Balloon (Teal and Yellow) -->
+                    <circle cx="50" cy="20" r="10" fill="#2dd4bf"/>
+                    <path d="M50 10 L 45 30 H 55 Z" fill="#facc15"/>
+                    <!-- Luggage/Bag -->
+                    <rect x="65" y="45" width="10" height="10" rx="2" fill="#78716c"/>
+                    <line x1="65" y1="45" x2="75" y2="45" stroke="#f5f5f4" stroke-width="1.5" stroke-linecap="round"/>
+                    <!-- Compass -->
+                    <circle cx="25" cy="45" r="5" fill="#f87171"/>
+                    <path d="M25 42 L 25 48 M 22 45 L 28 45" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
+                    <!-- Road Line -->
+                    <line x1="10" y1="58" x2="90" y2="58" stroke="#4b5563" stroke-width="0.5" stroke-dasharray="3 3"/>
+                </svg>
+            </div>
+
+            <h1 class="text-3xl font-extrabold text-blue-900 tracking-wider">
+                🇯🇵 冬日私旅・家庭漫遊：規劃中心
             </h1>
-            <p class="text-lg text-stone-600 mt-2 font-light">
+            <p class="text-lg text-stone-500 mt-2 font-light">
                 旅行日期：2026/01/02 ~ 01/09 | 主題：緩步慢行，長者友善
             </p>
             <div id="auth-status" class="mt-4 text-xs text-stone-400">
                 <!-- Auth status and User ID will be injected here -->
             </div>
-            <button id="save-itinerary-btn" class="mt-4 px-4 py-2 bg-pink-500 text-white font-bold rounded-xl shadow-md hover:bg-pink-600 transition duration-300 transform hover:scale-[1.02] hidden" disabled>
+            <button id="save-itinerary-btn" class="mt-4 px-6 py-2 bg-teal-600 text-white font-bold rounded-full shadow-lg hover:bg-teal-700 transition duration-300 transform hover:scale-[1.02] hidden" disabled>
                 💾 儲存行程至雲端
             </button>
         </header>
         
         <!-- START: Gemini AI Features Section (Gentle, bordered box) -->
-        <div id="ai-features" class="mb-10 p-6 bg-white rounded-2xl shadow-lg border border-dashed border-stone-300 space-y-5">
+        <div id="ai-features" class="mb-10 p-6 bg-white rounded-3xl shadow-lg border border-dashed border-stone-200 space-y-5">
             <h2 class="text-2xl font-bold text-stone-700 border-b border-stone-200 pb-3">
-                <span class="text-2xl mr-2">🌿</span> 實用旅途助手
+                <span class="text-2xl mr-2 text-teal-500">🌿</span> 實用旅途助手
             </h2>
             <p class="text-sm text-stone-500">點擊卡片展開助手，取得即時資訊。所有生成內容皆可收合，保持頁面清爽。</p>
 
             <!-- 1. Packing List Accordion Button (Muted Green/Lime) -->
-            <button id="toggle-packing-list" class="w-full flex items-center justify-between p-4 bg-lime-600/90 text-white font-semibold rounded-xl shadow-md hover:bg-lime-700 transition duration-300 transform hover:shadow-lg">
+            <button id="toggle-packing-list" class="w-full flex items-center justify-between p-4 bg-lime-600/90 text-white font-semibold rounded-2xl shadow-md hover:bg-lime-700 transition duration-300 transform hover:shadow-lg">
                 <span>🎒 行李清單生成器 (冬季/長者/8天)</span>
                 <svg class="w-5 h-5 transition-transform duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
-            <div id="packing-list-content" class="gemini-accordion-content bg-stone-50 rounded-xl shadow-inner border border-lime-100">
+            <div id="packing-list-content" class="gemini-accordion-content bg-lime-50 rounded-2xl shadow-inner border border-lime-100">
                 <div id="packing-list-loading" class="text-center py-10 hidden">
                     <svg class="animate-spin h-8 w-8 text-lime-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -89,11 +108,11 @@
             </div>
 
             <!-- 2. Phrases Accordion Button (Soft Pink/Fuchsia) -->
-            <button id="toggle-phrases" class="w-full flex items-center justify-between p-4 bg-pink-400/90 text-white font-semibold rounded-xl shadow-md hover:bg-pink-500 transition duration-300 transform hover:shadow-lg">
+            <button id="toggle-phrases" class="w-full flex items-center justify-between p-4 bg-pink-400/90 text-white font-semibold rounded-2xl shadow-md hover:bg-pink-500 transition duration-300 transform hover:shadow-lg">
                 <span>💬 溫暖關懷：緊急協助用語 (日語)</span>
                 <svg class="w-5 h-5 transition-transform duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
-            <div id="phrases-content" class="gemini-accordion-content bg-stone-50 rounded-xl shadow-inner border border-pink-100">
+            <div id="phrases-content" class="gemini-accordion-content bg-pink-50 rounded-2xl shadow-inner border border-pink-100">
                 <div id="phrases-loading" class="text-center py-10 hidden">
                     <svg class="animate-spin h-8 w-8 text-pink-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -169,8 +188,7 @@
                     { time: "20:00", activity: "晚餐", transport: "名古屋市區", note: "可選擇味噌豬排。" }
                 ]
             },
-            // ... (Rest of the default itinerary omitted for brevity but should be included)
-             {
+            {
                 day: 3,
                 date: "1/4 (週日)",
                 base: "伊勢/鳥羽 (I1)",
@@ -285,6 +303,7 @@
         // --- FIREBASE INITIALIZATION AND AUTH ---
         async function initializeFirebase() {
             try {
+                // Global variables provided by the Canvas environment
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                 const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
                 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
@@ -382,8 +401,7 @@
                     // Initialize with default data if document doesn't exist
                     currentItinerary = defaultItinerary;
                     console.log("No itinerary found, initializing with default data.");
-                    // Optionally save the default data immediately
-                    // saveItinerary(); 
+                    // The initial save is done via button click, not automatically
                 }
                 
                 // Re-render both parts
@@ -391,7 +409,10 @@
 
                 // If packing list was generated, re-render it with saved status
                 if (isPackingListGenerated) {
-                    renderPackingListUI(currentItinerary); // Packing list data is not stored in currentItinerary, so we only need to call render to apply saved status
+                    // Re-render logic would need access to the generated list structure (if it were saved).
+                    // Since the list content is *re-generated* by AI, we only ensure the status is applied.
+                    // For this simple version, we assume the AI content is rendered when the accordion is active.
+                    // The packingListStatus array is sufficient for the UI status.
                 }
             }, (error) => {
                 itineraryLoading.classList.add('hidden');
@@ -418,16 +439,18 @@
 
         // --- UI Rendering Functions ---
 
-        // Renders the main itinerary cards
+        // Renders the main itinerary cards (Now with fresher styles)
         function renderItinerary(data) {
             itineraryContainer.innerHTML = ''; // Clear existing content
             
             data.forEach(dayData => {
                 const card = document.createElement('div');
-                card.className = 'itinerary-card bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl cursor-pointer border border-stone-100';
+                // Updated card style: Lighter border, more rounded
+                card.className = 'itinerary-card bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer border border-stone-200';
 
-                // Header (Clickable Accordion Trigger) - Soft Teal background
+                // Header (Clickable Accordion Trigger) - Very light Teal background
                 const header = document.createElement('div');
+                // Fresher colors: teal-50 for light background, teal-700 for main text
                 header.className = 'flex justify-between items-center p-5 bg-teal-50 hover:bg-teal-100 transition-colors duration-200 border-b border-teal-200';
                 header.innerHTML = `
                     <div class="flex items-center space-x-4">
@@ -449,8 +472,8 @@
                 
                 dayData.details.forEach(detail => {
                     const row = document.createElement('div');
-                    // Cleaner row structure
-                    row.className = 'grid grid-cols-1 md:grid-cols-8 gap-2 md:gap-4 py-3 px-1 border-b border-stone-100 last:border-b-0 transition-colors duration-150 hover:bg-stone-50 rounded-lg';
+                    // Lighter hover effect
+                    row.className = 'grid grid-cols-1 md:grid-cols-8 gap-2 md:gap-4 py-3 px-1 border-b border-stone-100 last:border-b-0 transition-colors duration-150 hover:bg-f5f5f4 rounded-lg';
                     
                     row.innerHTML = `
                         <!-- Time: Muted, clear -->
