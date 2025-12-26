@@ -2,761 +2,494 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>清新風格家庭旅遊行程規劃 Web App</title>
-    <!-- Tailwind CSS CDN -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>愛知・三重・冬日の旅</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- 引入 Poppins 字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        muji: {
+                            base: '#f4f4f0',
+                            card: '#ffffff',
+                            text: '#333333',
+                            muted: '#9a9a9a',
+                            red: '#7F0019',
+                            kraft: '#e6e3dc',
+                            border: '#e5e5e5',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Poppins"', '"Microsoft JhengHei"', '"微軟正黑體"', 'sans-serif'],
+                        serif: ['"Poppins"', '"Microsoft JhengHei"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        /* Custom Font - Inter (clean and modern) */
         body {
-            font-family: 'Inter', 'Noto Sans TC', sans-serif;
-            /* Lighter, airy background for the fresh style */
-            background-color: #f8fcfb; 
+            background-color: #f4f4f0;
+            color: #333333;
+            -webkit-tap-highlight-color: transparent;
+            padding-bottom: 90px;
+            line-height: 1.7;
+            letter-spacing: 0.01em;
+            font-family: "Poppins", "Microsoft JhengHei", "微軟正黑體", sans-serif;
         }
-        /* Style for the main itinerary accordion details */
-        .itinerary-accordion-content {
-            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
-            max-height: 0;
-            overflow: hidden;
-            padding: 0 1rem;
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .muji-card {
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            border-radius: 4px;
         }
-        .itinerary-accordion-content.active {
-            max-height: 1000px; /* Large enough value to show all content */
-            padding: 1rem;
+
+        .nav-btn.active { color: #7F0019; position: relative; }
+        .nav-btn.active::after {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 3px;
+            background-color: #7F0019;
         }
-        /* Style for the Gemini feature accordion details */
-        .gemini-accordion-content {
-            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            padding: 0 1rem;
+
+        .page-section { display: none; animation: fadeIn 0.4s ease-out; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .gemini-accordion-content.active {
-            max-height: 2000px; /* Even larger for lists */
-            opacity: 1;
-            padding: 1.5rem;
-        }
-        /* Style for the checkbox list items */
-        .checked-item {
+        
+        input[type="checkbox"]:checked + span {
             text-decoration: line-through;
-            color: #a8a29e; /* Muted stone color */
+            color: #9a9a9a;
         }
+
+        b, strong { font-weight: 600; }
+        .font-mono { font-family: "Poppins", monospace; letter-spacing: 0.05em; }
     </style>
 </head>
-<body class="p-4 md:p-10 bg-f8fcfb">
+<body>
 
-    <div class="max-w-4xl mx-auto">
-        <!-- HEADER: Fresh Illustration and Title -->
-        <header class="mb-10 text-center bg-white rounded-3xl shadow-xl border border-teal-50 p-6 sm:p-10">
-            <!-- Travel-Themed Fresh SVG Illustration -->
-            <div class="w-full max-w-sm mx-auto mb-6">
-                <svg viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Background Soft Waves/Hills -->
-                    <path d="M0 40 C 25 30, 75 30, 100 40 V 60 H 0 Z" fill="#e0f2fe" opacity="0.6"/>
-                    <!-- Main Icon: Hot Air Balloon (Teal and Yellow) -->
-                    <circle cx="50" cy="20" r="10" fill="#2dd4bf"/>
-                    <path d="M50 10 L 45 30 H 55 Z" fill="#facc15"/>
-                    <!-- Luggage/Bag -->
-                    <rect x="65" y="45" width="10" height="10" rx="2" fill="#78716c"/>
-                    <line x1="65" y1="45" x2="75" y2="45" stroke="#f5f5f4" stroke-width="1.5" stroke-linecap="round"/>
-                    <!-- Compass -->
-                    <circle cx="25" cy="45" r="5" fill="#f87171"/>
-                    <path d="M25 42 L 25 48 M 22 45 L 28 45" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
-                    <!-- Road Line -->
-                    <line x1="10" y1="58" x2="90" y2="58" stroke="#4b5563" stroke-width="0.5" stroke-dasharray="3 3"/>
-                </svg>
-            </div>
-
-            <h1 class="text-3xl font-extrabold text-blue-900 tracking-wider">
-                🇯🇵 冬日私旅・家庭漫遊：規劃中心
-            </h1>
-            <p class="text-lg text-stone-500 mt-2 font-light">
-                旅行日期：2026/01/02 ~ 01/09 | 主題：緩步慢行，長者友善
-            </p>
-            <div id="auth-status" class="mt-4 text-xs text-stone-400">
-                <!-- Auth status and User ID will be injected here -->
-            </div>
-            <button id="save-itinerary-btn" class="mt-4 px-6 py-2 bg-teal-600 text-white font-bold rounded-full shadow-lg hover:bg-teal-700 transition duration-300 transform hover:scale-[1.02] hidden" disabled>
-                💾 儲存行程至雲端
-            </button>
-        </header>
-        
-        <!-- START: Gemini AI Features Section (Gentle, bordered box) -->
-        <div id="ai-features" class="mb-10 p-6 bg-white rounded-3xl shadow-lg border border-dashed border-stone-200 space-y-5">
-            <h2 class="text-2xl font-bold text-stone-700 border-b border-stone-200 pb-3">
-                <span class="text-2xl mr-2 text-teal-500">🌿</span> 實用旅途助手
-            </h2>
-            <p class="text-sm text-stone-500">點擊卡片展開助手，取得即時資訊。所有生成內容皆可收合，保持頁面清爽。</p>
-
-            <!-- 1. Packing List Accordion Button (Muted Green/Lime) -->
-            <button id="toggle-packing-list" class="w-full flex items-center justify-between p-4 bg-lime-600/90 text-white font-semibold rounded-2xl shadow-md hover:bg-lime-700 transition duration-300 transform hover:shadow-lg">
-                <span>🎒 行李清單生成器 (冬季/長者/8天)</span>
-                <svg class="w-5 h-5 transition-transform duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-            </button>
-            <div id="packing-list-content" class="gemini-accordion-content bg-lime-50 rounded-2xl shadow-inner border border-lime-100">
-                <div id="packing-list-loading" class="text-center py-10 hidden">
-                    <svg class="animate-spin h-8 w-8 text-lime-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <p class="mt-2 text-lime-600">AI 正在為您生成冬季家庭旅行行李清單...</p>
-                </div>
-                <div id="packing-list-results" class="text-stone-700 space-y-4">
-                    <!-- Results will be inserted here -->
-                </div>
-            </div>
-
-            <!-- 2. Phrases Accordion Button (Soft Pink/Fuchsia) -->
-            <button id="toggle-phrases" class="w-full flex items-center justify-between p-4 bg-pink-400/90 text-white font-semibold rounded-2xl shadow-md hover:bg-pink-500 transition duration-300 transform hover:shadow-lg">
-                <span>💬 溫暖關懷：緊急協助用語 (日語)</span>
-                <svg class="w-5 h-5 transition-transform duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-            </button>
-            <div id="phrases-content" class="gemini-accordion-content bg-pink-50 rounded-2xl shadow-inner border border-pink-100">
-                <div id="phrases-loading" class="text-center py-10 hidden">
-                    <svg class="animate-spin h-8 w-8 text-pink-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <p class="mt-2 text-pink-500">AI 正在為您生成緊急日語短語...</p>
-                </div>
-                <div id="phrases-results" class="text-stone-700 space-y-3">
-                    <!-- Results will be inserted here -->
-                </div>
+    <header class="fixed top-0 left-0 right-0 z-40 bg-muji-base/95 backdrop-blur-sm border-b border-muji-border px-6 py-5">
+        <div class="flex justify-between items-end">
+            <div>
+                <h1 class="text-3xl font-bold text-muji-text tracking-tight font-sans">愛知・三重・冬日の旅</h1>
+                <p class="text-[10px] font-medium text-muji-muted mt-1 tracking-[0.2em] font-sans">2026.01.02 — 01.09</p>
             </div>
         </div>
-        <!-- END: Gemini AI Features Section -->
+    </header>
 
-        <!-- MAIN ITINERARY -->
-        <div id="itinerary-container" class="space-y-6">
-            <!-- Itinerary cards will be injected here by JavaScript -->
-            <div id="itinerary-loading" class="text-center py-12 text-teal-600">
-                <svg class="animate-spin h-8 w-8 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <p>正在載入您的行程資料...</p>
-            </div>
-        </div>
+    <div class="h-24"></div>
 
-        <footer class="mt-12 text-center text-sm text-stone-400 p-4">
-            <p>旅行的意義，在於緩步感受與家人同在的每一刻時光。</p>
-        </footer>
-    </div>
-
-    <script type="module">
-        // --- Firebase Imports ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // setLogLevel('Debug'); // Enable for detailed console logging
-
-        // --- Global/App State ---
-        let db;
-        let auth;
-        let userId = null;
-        let isAuthReady = false;
-        
-        // This itinerary will be overwritten by Firestore data if available
-        let currentItinerary = [];
-        let packingListStatus = []; // New state for checked packing list items
-
-        // Hardcoded Default Itinerary (Used if no data in Firestore)
-        const defaultItinerary = [
-            {
-                day: 1, date: "1/2 (週五)", base: "名古屋 (N1)", title: "抵達與初探：順利入住",
-                details: [
-                    { time: "15:35", activity: "UO680 班機 從香港 (HKG) 出發", transport: "香港快運", note: "請預先確認行李額度。" },
-                    { time: "20:05", activity: "抵達中部國際機場 (NGO)", transport: "機場抵達", note: "晚間入境，節奏放慢。" },
-                    { time: "21:00", activity: "NGO → 名古屋市區", transport: "名鐵 μ-SKY 特急列車", note: "車程：約 30 分鐘。確保長者有指定座位。" },
-                    { time: "22:00", activity: "Check-in 名古屋飯店", transport: "步行/計程車", note: "建議選擇近車站或榮地區。" },
-                    { time: "22:30", activity: "晚餐與休息", transport: "飯店周邊", note: "以休息為主，準備隔天長途移動。" }
-                ]
-            },
-            {
-                day: 2, date: "1/3 (週六)", base: "名古屋 (N2)", title: "世界遺產：白川鄉合掌村一日遊",
-                details: [
-                    { time: "07:30", activity: "出發至名鐵巴士中心", transport: "地鐵/步行", note: "提早出門以應對新年人潮。" },
-                    { time: "07:40", activity: "高速巴士 (去程)", transport: "名鐵/濃飛巴士 (預約制)", note: "單程車程：約 2.5～3 小時。請務必提前預訂車票。" },
-                    { time: "10:30", activity: "抵達白川鄉，參觀合掌村", transport: "巴士抵達", note: "冬季地面可能積雪/結冰，**務必穿防滑鞋**。" },
-                    { time: "13:00", activity: "午餐", transport: "聚落內用餐", note: "品嚐蕎麥麵或鄉土料理。" },
-                    { time: "14:30", activity: "展望台 (全景)", transport: "接駁小巴", note: "欣賞全景，注意保暖。" },
-                    { time: "16:00", activity: "集合/高速巴士 (回程)", transport: "名鐵/濃飛巴士 (預約制)", note: "需提前預訂回程班次。" },
-                    { time: "19:00", activity: "抵達名古屋", transport: "巴士抵達", note: "回飯店休息。" },
-                    { time: "20:00", activity: "晚餐", transport: "名古屋市區", note: "可選擇味噌豬排。" }
-                ]
-            },
-            {
-                day: 3,
-                date: "1/4 (週日)",
-                base: "伊勢/鳥羽 (I1)",
-                title: "移動日：伊勢神宮外宮與內宮參拜",
-                details: [
-                    { time: "09:00", activity: "Check-out 名古屋飯店", transport: "處理行李", note: "僅攜帶輕便行李前往伊勢。" },
-                    { time: "10:00", activity: "名古屋 → 伊勢市", transport: "近鐵特急列車", note: "車程：約 1 小時 35 分鐘。**必預訂指定席**。" },
-                    { time: "11:45", activity: "抵達伊勢市站，午餐", transport: "車站周邊", note: "" },
-                    { time: "14:00", activity: "伊勢神宮 外宮 (Geku)", transport: "步行 (靠近車站)", note: "地勢平坦，適合長者。" },
-                    { time: "15:30", activity: "伊勢神宮 內宮 (Naiku)", transport: "CAN Bus (三重交通巴士)", note: "內宮參道為碎石路，請準備輪椅或查協助服務。" },
-                    { time: "17:30", activity: "Check-in 伊勢/鳥羽飯店", transport: "CAN Bus 或計程車", note: "今日起連續入住 3 晚。" },
-                    { time: "19:30", activity: "晚餐", transport: "飯店或當地海鮮餐廳", note: "" }
-                ]
-            },
-            {
-                day: 4,
-                date: "1/5 (週一)",
-                base: "伊勢/鳥羽 (I2)",
-                title: "伊勢文化：御蔭橫丁與夫婦岩",
-                details: [
-                    { time: "09:30", activity: "御蔭橫丁與厄除町", transport: "步行 (近內宮)", note: "老街散步與購物。" },
-                    { time: "11:30", activity: "午餐", transport: "老街內", note: "品嚐伊勢烏龍麵或赤福。" },
-                    { time: "14:00", activity: "二見浦", transport: "CAN Bus", note: "觀賞夫婦岩，海邊風大，注意保暖。" },
-                    { time: "16:00", activity: "鳥羽地區觀光", transport: "CAN Bus", note: "選擇鳥羽水族館（室內）或御木本珍珠島。" },
-                    { time: "19:30", activity: "晚餐", transport: "飯店或當地餐廳", note: "充裕時間休息。" }
-                ]
-            },
-            {
-                day: 5,
-                date: "1/6 (週二)",
-                base: "伊勢/鳥羽 (I3)",
-                title: "松阪歷史與美食：享用松阪牛",
-                details: [
-                    { time: "10:00", activity: "鳥羽/伊勢周邊自由活動", transport: "步行", note: "悠閒早晨，不趕時間。" },
-                    { time: "12:30", activity: "午餐", transport: "飯店附近", note: "" },
-                    { time: "14:30", activity: "伊勢 → 松阪", transport: "近鐵急行列車", note: "車程：約 45 分鐘。" },
-                    { time: "15:30", activity: "松阪城跡周邊", transport: "步行", note: "只參觀山腳下的武士屋敷等平面景點，避免爬坡。" },
-                    { time: "19:00", activity: "晚餐", transport: "松阪市區", note: "享用著名的松阪牛。" },
-                    { time: "20:30", activity: "松阪 → 鳥羽/伊勢", transport: "近鐵列車", note: "返回飯店休息。" }
-                ]
-            },
-            {
-                day: 6,
-                date: "1/7 (週三)",
-                base: "名古屋 (N3)",
-                title: "移動日：冬季點燈名花之里",
-                details: [
-                    { time: "09:00", activity: "Check-out 伊勢/鳥羽飯店", transport: "處理行李", note: "今日搬家回名古屋，整理行李。" },
-                    { time: "10:30", activity: "伊勢 → 桑名", transport: "近鐵特急列車 (需轉車)", note: "車程：約 1.5 小時。" },
-                    { time: "12:30", activity: "午餐", transport: "桑名或長島地區", note: "" },
-                    { time: "14:30", activity: "前往名花之里", transport: "巴士/計程車", note: "" },
-                    { time: "16:00", activity: "名花之里 園區散步", transport: "步行", note: "園區路面平坦，適合長者散步，等待點燈。" },
-                    { time: "18:00", activity: "名花之里 冬季點燈", transport: "觀賞", note: "**冬季戶外寒冷，務必多穿保暖衣物**。" },
-                    { time: "20:00", activity: "名花之里 → 名古屋", transport: "直達巴士或近鐵 (從桑名站)", note: "車程：約 30～50 分鐘。" },
-                    { time: "21:30", activity: "Check-in 名古屋飯店", transport: "步行/計程車", note: "再次入住名古屋飯店，連續入住 2 晚。" }
-                ]
-            },
-            {
-                day: 7,
-                date: "1/8 (週四)",
-                base: "名古屋 (N4)",
-                title: "名古屋：歷史文化與購物緩衝",
-                details: [
-                    { time: "10:00", activity: "名古屋城", transport: "地鐵名城線", note: "參觀廣闊的城區和庭園。" },
-                    { time: "12:30", activity: "午餐", transport: "名古屋車站/榮", note: "品嚐鰻魚飯。" },
-                    { time: "14:30", activity: "德川園與美術館", transport: "地鐵櫻通線", note: "參觀優雅的日式庭園。" },
-                    { time: "17:30", activity: "自由活動/購物", transport: "名古屋車站周邊", note: "在百貨公司或地下街採購伴手禮。" },
-                    { time: "19:30", activity: "晚餐", transport: "名古屋市區", note: "歡送晚宴。" },
-                    { time: "21:00", activity: "打包行李", transport: "飯店", note: "準備隔日離境。" }
-                ]
-            },
-            {
-                day: 8,
-                date: "1/9 (週五)",
-                base: "離境",
-                title: "回程：悠閒前往機場",
-                details: [
-                    { time: "10:00", activity: "早餐/Check-out", transport: "飯店", note: "確認所有行李和物品。" },
-                    { time: "12:00", activity: "午餐", transport: "名古屋市區", note: "最後一次日式午餐。" },
-                    { time: "17:00", activity: "前往中部國際機場 (NGO)", transport: "名鐵特急列車或 μ-SKY 列車", note: "車程：約 30～40 分鐘。預留充足時間辦理登機。" },
-                    { time: "18:00", activity: "抵達機場", transport: "機場手續", note: "辦理登機和退稅手續。" },
-                    { time: "21:05", activity: "UO681 班機 從名古屋 (NGO) 出發", transport: "香港快運", note: "預計起飛時間。" },
-                    { time: "00:05 (+1)", activity: "抵達香港", transport: "航班抵達", note: "" }
-                ]
-            }
-        ];
-
-
-        // --- Gemini API Setup & Utility ---
-        const apiKey = ""; 
-        const model = "gemini-2.5-flash-preview-09-2025";
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-        
-        // --- UI Element Selectors ---
-        const packingListBtn = document.getElementById('toggle-packing-list');
-        const packingListContent = document.getElementById('packing-list-content');
-        const packingListLoading = document.getElementById('packing-list-loading');
-        const packingListResults = document.getElementById('packing-list-results');
-        const phrasesBtn = document.getElementById('toggle-phrases');
-        const phrasesContent = document.getElementById('phrases-content');
-        const phrasesLoading = document.getElementById('phrases-loading');
-        const phrasesResults = document.getElementById('phrases-results');
-        const itineraryContainer = document.getElementById('itinerary-container');
-        const itineraryLoading = document.getElementById('itinerary-loading');
-        const saveBtn = document.getElementById('save-itinerary-btn');
-
-        // State to track if content has been generated to avoid re-generating on every close/open
-        let isPackingListGenerated = false;
-        let isPhrasesGenerated = false;
-
-        
-        // --- FIREBASE INITIALIZATION AND AUTH ---
-        async function initializeFirebase() {
-            try {
-                // Global variables provided by the Canvas environment
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-                const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                
-                await setPersistence(auth, browserLocalPersistence);
-
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                onAuthStateChanged(auth, (user) => {
-                    isAuthReady = true;
-                    if (user) {
-                        userId = user.uid;
-                        document.getElementById('auth-status').innerHTML = `
-                            身份：已登入 (用戶 ID: <span class="font-mono text-xs text-teal-600">${userId}</span>)
-                        `;
-                        saveBtn.classList.remove('hidden');
-                        saveBtn.disabled = false;
-                        loadItinerary();
-                    } else {
-                        userId = null;
-                        document.getElementById('auth-status').innerHTML = '身份：匿名使用者';
-                        saveBtn.classList.add('hidden');
-                        renderItinerary(defaultItinerary);
-                    }
-                });
-
-            } catch (error) {
-                console.error("Firebase Initialization Error:", error);
-                document.getElementById('auth-status').innerHTML = `<span class="text-red-500">Firebase 連線失敗！</span>`;
-                isAuthReady = true;
-                renderItinerary(defaultItinerary);
-            }
-        }
-
-        // --- FIREBASE DATA FUNCTIONS ---
-        
-        function getItineraryDocRef() {
-            if (!userId) {
-                console.error("User not authenticated for Firestore operation.");
-                return null;
-            }
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            // Path: /artifacts/{appId}/users/{userId}/travel_plans/itinerary_doc
-            return doc(db, 'artifacts', appId, 'users', userId, 'travel_plans', 'itinerary_doc');
-        }
-
-        // Save the current itinerary and packing list state
-        async function saveItinerary() {
-            const docRef = getItineraryDocRef();
-            if (!docRef) return;
-            
-            saveBtn.disabled = true;
-            saveBtn.textContent = '儲存中...';
-
-            try {
-                await setDoc(docRef, {
-                    itinerary: currentItinerary,
-                    packingListStatus: packingListStatus, // Save the checked state
-                    updatedAt: new Date().toISOString()
-                }, { merge: true });
-
-                console.log("Itinerary saved successfully!");
-            } catch (error) {
-                console.error("Error saving itinerary:", error);
-                // Use custom modal or message box if needed, not alert()
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.textContent = '💾 儲存行程至雲端';
-            }
-        }
-
-        // Load itinerary and listen for real-time changes
-        function loadItinerary() {
-            const docRef = getItineraryDocRef();
-            if (!docRef) return;
-
-            itineraryLoading.classList.remove('hidden');
-
-            onSnapshot(docRef, (docSnap) => {
-                itineraryLoading.classList.add('hidden');
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    currentItinerary = data.itinerary || defaultItinerary;
-                    packingListStatus = data.packingListStatus || [];
-                    console.log("Itinerary loaded from Firestore.", data);
-                } else {
-                    // Initialize with default data if document doesn't exist
-                    currentItinerary = defaultItinerary;
-                    console.log("No itinerary found, initializing with default data.");
-                    // The initial save is done via button click, not automatically
-                }
-                
-                // Re-render both parts
-                renderItinerary(currentItinerary);
-
-                // If packing list was generated, re-render it with saved status
-                if (isPackingListGenerated) {
-                    // Re-render logic would need access to the generated list structure (if it were saved).
-                    // Since the list content is *re-generated* by AI, we only ensure the status is applied.
-                    // For this simple version, we assume the AI content is rendered when the accordion is active.
-                    // The packingListStatus array is sufficient for the UI status.
-                }
-            }, (error) => {
-                itineraryLoading.classList.add('hidden');
-                console.error("Error listening to itinerary:", error);
-                renderItinerary(defaultItinerary); // Fallback to default
-            });
-        }
-        
-        // Function to update packing list status (checked/unchecked)
-        function updatePackingStatus(itemKey, isChecked) {
-            if (isChecked) {
-                // Add to the list of checked items
-                if (!packingListStatus.includes(itemKey)) {
-                    packingListStatus.push(itemKey);
-                }
-            } else {
-                // Remove from the list of checked items
-                packingListStatus = packingListStatus.filter(key => key !== itemKey);
-            }
-            
-            // Auto-save the status to Firestore
-            saveItinerary();
-        }
-
-        // --- UI Rendering Functions ---
-
-        // Renders the main itinerary cards (Now with fresher styles)
-        function renderItinerary(data) {
-            itineraryContainer.innerHTML = ''; // Clear existing content
-            
-            data.forEach(dayData => {
-                const card = document.createElement('div');
-                // Updated card style: Lighter border, more rounded
-                card.className = 'itinerary-card bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer border border-stone-200';
-
-                // Header (Clickable Accordion Trigger) - Very light Teal background
-                const header = document.createElement('div');
-                // Fresher colors: teal-50 for light background, teal-700 for main text
-                header.className = 'flex justify-between items-center p-5 bg-teal-50 hover:bg-teal-100 transition-colors duration-200 border-b border-teal-200';
-                header.innerHTML = `
-                    <div class="flex items-center space-x-4">
-                        <div class="text-2xl font-bold text-teal-700">Day ${dayData.day}</div>
-                        <div>
-                            <p class="text-lg font-semibold text-stone-800">${dayData.title}</p>
-                            <p class="text-sm text-stone-500 mt-0.5">${dayData.date} | 住宿：${dayData.base}</p>
+    <!-- ==================== PAGE: PLAN ==================== -->
+    <section id="page-plan" class="page-section active px-5 max-w-2xl mx-auto">
+        <div class="muji-card p-6 mb-8 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-muji-red"></div>
+            <h3 class="text-[10px] font-bold text-muji-muted uppercase mb-4 tracking-widest">Flight & Hotel / 航班與住宿</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center pb-3 border-b border-dashed border-muji-border">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-medium text-muji-muted mb-1 uppercase">Jan 02 • UO680</span>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-2xl font-sans tracking-tighter">HKG</span>
+                            <span class="text-xs text-muji-muted">→</span>
+                            <span class="font-bold text-2xl font-sans tracking-tighter">NGO</span>
                         </div>
                     </div>
-                    <svg class="arrow w-6 h-6 text-teal-600 transition-transform duration-300 transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                `;
-                
-                // Content (Hidden Details)
-                const content = document.createElement('div');
-                content.className = 'itinerary-accordion-content';
-                
-                const table = document.createElement('div');
-                table.className = 'space-y-3';
-                
-                dayData.details.forEach(detail => {
-                    const row = document.createElement('div');
-                    // Lighter hover effect
-                    row.className = 'grid grid-cols-1 md:grid-cols-8 gap-2 md:gap-4 py-3 px-1 border-b border-stone-100 last:border-b-0 transition-colors duration-150 hover:bg-f5f5f4 rounded-lg';
-                    
-                    row.innerHTML = `
-                        <!-- Time: Muted, clear -->
-                        <div class="font-semibold text-sm text-stone-500 col-span-1 md:col-span-1">${detail.time}</div>
-                        <!-- Activity: Main text -->
-                        <div class="col-span-1 md:col-span-3 text-stone-700 font-medium">${detail.activity}</div>
-                        <!-- Transport: Secondary info, lighter color -->
-                        <div class="col-span-1 md:col-span-2 text-teal-500 text-xs italic">${detail.transport}</div>
-                        <!-- Note: Important caution in a warmer, emphasis color -->
-                        <div class="col-span-1 md:col-span-2 text-pink-600 text-xs font-light">${detail.note}</div>
-                    `;
-                    table.appendChild(row);
-                });
-
-                content.appendChild(table);
-                card.appendChild(header);
-                card.appendChild(content);
-                itineraryContainer.appendChild(card);
-
-                // Accordion Logic
-                header.addEventListener('click', () => {
-                    // Toggle visibility of content
-                    const isActive = content.classList.toggle('active');
-                    
-                    // Toggle arrow rotation
-                    const arrow = header.querySelector('.arrow');
-                    if (isActive) {
-                        arrow.classList.add('rotate-180');
-                    } else {
-                        arrow.classList.remove('rotate-180');
-                    }
-                });
-            });
-        }
-
-
-        // Renders the packing list with the saved checked status
-        function renderPackingListUI(packingList) {
-            let html = '<div class="space-y-4">';
-            
-            packingList.forEach((cat, catIndex) => {
-                html += `<div class="p-4 bg-white rounded-xl border border-lime-200 shadow-sm">
-                            <h3 class="text-lg font-bold text-teal-600 border-b border-lime-300 pb-1 mb-3">${cat.category}</h3>
-                            <div class="space-y-2">`;
-                cat.items.forEach((item, itemIndex) => {
-                    // Unique key for Firestore state tracking
-                    const itemKey = `${catIndex}-${itemIndex}`; 
-                    const isChecked = packingListStatus.includes(itemKey);
-                    const labelClass = isChecked ? 'checked-item' : '';
-
-                    html += `
-                        <div class="flex items-start">
-                            <input type="checkbox" id="item-${itemKey}" data-key="${itemKey}" ${isChecked ? 'checked' : ''} class="mt-1 h-4 w-4 text-lime-600 border-stone-300 rounded focus:ring-lime-500 packing-checkbox">
-                            <label for="item-${itemKey}" class="ml-3 text-sm font-medium text-stone-700 select-none cursor-pointer hover:text-lime-600 transition leading-relaxed ${labelClass}">${item}</label>
+                    <span class="text-xs font-semibold bg-muji-base px-2 py-1 rounded">10:00 - 14:30</span>
+                </div>
+                <div class="flex justify-between items-center pb-3 border-b border-dashed border-muji-border">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-medium text-muji-muted mb-1 uppercase">Jan 09 • UO681</span>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-2xl font-sans tracking-tighter">NGO</span>
+                            <span class="text-xs text-muji-muted">→</span>
+                            <span class="font-bold text-2xl font-sans tracking-tighter">HKG</span>
                         </div>
-                    `;
-                });
-                html += `</div></div>`;
-            });
-            html += '</div>';
+                    </div>
+                    <span class="text-xs font-semibold bg-muji-base px-2 py-1 rounded">15:25 - 19:15</span>
+                </div>
+                <div class="pt-1 flex items-start gap-4">
+                    <div class="mt-1 text-muji-muted"><i class="fa-regular fa-building text-lg"></i></div>
+                    <div>
+                        <p class="font-bold text-muji-text leading-tight text-sm">Hotel Resol Nagoya | Comfort Hotel Ise | Nagoya JR Gate Tower Hotel</p>
+                        <p class="text-[10px] font-medium text-muji-muted mt-1 uppercase tracking-wider">Stay for 2 | 2 | 3 Nights / 入住二 | 二 | 三晚</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="itinerary-list" class="space-y-8 pl-2"></div>
+    </section>
 
-            packingListResults.innerHTML = html;
+    <!-- ==================== PAGE: GUIDE ==================== -->
+    <section id="page-guide" class="page-section px-5 max-w-2xl mx-auto">
+        <div class="flex items-center gap-3 mb-8">
+            <h2 class="text-2xl font-bold text-muji-text">Guide</h2>
+            <span class="h-px bg-muji-border flex-1"></span>
+        </div>
+        <div class="space-y-8">
+            <div>
+                <h3 class="text-[10px] font-bold text-muji-red mb-3 tracking-widest uppercase border-b border-muji-red pb-1">Shirakawa-go & Takayama / 白川鄉與高山</h3>
+                <div class="muji-card p-5 mb-4">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fa-solid fa-location-dot text-muji-red text-xs"></i>
+                        <span class="text-sm font-bold">一日遊集合資訊</span>
+                    </div>
+                    <p class="text-xs text-muji-text leading-relaxed">
+                        地點：JR名古屋站西口 (Bic Camera側)<br>
+                        地標：Bic Camera 後方 Ministop 便利商店門口<br>
+                        時間：<span class="text-muji-red font-bold">08:15 集合</span> / 08:30 出發
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded border border-muji-border">
+                        <h4 class="text-xs font-bold mb-2 text-muji-text">飛驒高山 (古街散策)</h4>
+                        <ul class="text-[11px] space-y-1 text-muji-muted">
+                            <li>• 必吃：飛驒牛握壽司 (二四三屋/坂口屋)</li>
+                            <li>• 必吃：五平餅、飛驒牛肉串</li>
+                            <li>• 景點：高山陣屋、上三之町</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded border border-muji-border">
+                        <h4 class="text-xs font-bold mb-2 text-muji-text">白川鄉合掌村 (世界遺產)</h4>
+                        <ul class="text-[11px] space-y-1 text-muji-muted">
+                            <li>• 景點：荻町城跡展望台 (俯瞰全村)</li>
+                            <li>• 景點：和田家 / 神田家 (入內參參觀)</li>
+                            <li>• 注意：冬季路滑，務必穿著防滑鞋</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-[10px] font-bold text-muji-red mb-3 tracking-widest uppercase border-b border-muji-red pb-1">Transport / 交通提示</h3>
+                <div class="muji-card p-5">
+                    <ul class="text-sm space-y-2 text-muji-text">
+                        <li>• <span class="font-bold">近鐵特急:</span> 預約 1/4 (10:10) 名古屋 → 伊勢市</li>
+                        <li>• <span class="font-bold">近鐵特急:</span> 預約 1/6 (16:15) 伊勢市 → 名古屋</li>
+                        <li>• <span class="font-bold">CAN Bus:</span> 抵達伊勢市站後先買一日券 (1300yen)</li>
+                        <li>• <span class="font-bold">ICOCA/Suica:</span> 市內移動直接感應即可</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
 
-            // Add event listeners to the new checkboxes
-            document.querySelectorAll('.packing-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', (event) => {
-                    const key = event.target.getAttribute('data-key');
-                    const isChecked = event.target.checked;
-                    
-                    // Toggle the visual class on the label
-                    const label = document.querySelector(`label[for="item-${key}"]`);
-                    if (label) {
-                        label.classList.toggle('checked-item', isChecked);
-                    }
-                    
-                    updatePackingStatus(key, isChecked);
-                });
-            });
-        }
+    <!-- ==================== PAGE: WALLET ==================== -->
+    <section id="page-wallet" class="page-section px-5 max-w-2xl mx-auto">
+        <div class="flex items-center gap-3 mb-8">
+            <h2 class="text-2xl font-bold text-muji-text">Wallet</h2>
+            <span class="h-px bg-muji-border flex-1"></span>
+        </div>
 
+        <!-- 匯率設定 -->
+        <div class="muji-card p-5 mb-6">
+            <div class="flex justify-between items-center">
+                <span class="text-[10px] font-bold tracking-widest text-muji-muted uppercase">Rate / 當前匯率</span>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-bold text-muji-muted">1 JPY =</span>
+                    <input type="number" id="exchange-rate" value="0.052" step="0.001" oninput="updateAllCalculations()" class="w-16 bg-muji-base text-center text-xs p-1 font-mono font-bold rounded">
+                    <span class="text-[10px] font-bold text-muji-muted uppercase">HKD</span>
+                </div>
+            </div>
+        </div>
 
-        // --- Gemini API Functions (same as before, but calling renderPackingListUI) ---
+        <!-- 快速換算 -->
+        <div class="muji-card p-6 mb-8">
+            <h3 class="text-[10px] font-bold text-muji-text mb-4 tracking-widest uppercase">Quick Convert / 快速換算</h3>
+            <div class="flex gap-4">
+                <div class="relative flex-1">
+                    <span class="absolute left-2 top-2 text-[10px] text-muji-muted font-bold">JPY</span>
+                    <input type="number" id="calc-input" placeholder="0" oninput="calculate()" class="w-full bg-muji-base border-b border-muji-border pt-5 pb-2 px-2 font-mono font-bold outline-none text-lg">
+                </div>
+                <div class="flex flex-col justify-end">
+                    <div id="calc-result" class="text-xl font-mono font-bold text-muji-red">0.00 HKD</div>
+                </div>
+            </div>
+        </div>
 
-        // Utility function for exponential backoff
-        async function fetchWithRetry(url, options, maxRetries = 5) {
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (response.status !== 429) { // Not a rate limit error
-                        return response;
-                    }
-                    const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                } catch (error) {
-                    if (i === maxRetries - 1) throw error;
-                    const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-            }
-        }
-        
-        function showLoading(loadingElement, resultsElement) {
-            loadingElement.classList.remove('hidden');
-            resultsElement.classList.add('hidden');
-            resultsElement.innerHTML = '';
-        }
+        <!-- 入帳工具 (互換後的位置：上) -->
+        <div class="muji-card p-6 mb-8">
+            <h3 class="text-[10px] font-bold text-stone-800 mb-4 tracking-widest uppercase">Joint Fund / 入帳工具 (公數)</h3>
+            <div class="space-y-4">
+                <div class="relative">
+                    <span class="absolute left-2 top-2 text-[10px] text-muji-muted font-bold uppercase">Total Inbound / 總存入 (JPY)</span>
+                    <input type="number" id="fund-inbound" placeholder="0" oninput="updateFund()" class="w-full bg-muji-base border-b border-muji-border pt-5 pb-2 px-2 font-mono font-bold outline-none text-lg">
+                </div>
+                <div class="relative">
+                    <span class="absolute left-2 top-2 text-[10px] text-muji-muted font-bold uppercase">Total Expenses / 已支出 (JPY)</span>
+                    <input type="number" id="fund-expenses" placeholder="0" oninput="updateFund()" class="w-full bg-muji-base border-b border-muji-border pt-5 pb-2 px-2 font-mono font-bold outline-none text-lg">
+                </div>
+            </div>
+            <div class="mt-6 pt-4 border-t border-dashed border-muji-border space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-muji-muted">剩餘餘額 (JPY)</span>
+                    <span id="fund-balance-jpy" class="font-mono font-bold text-lg">¥ 0</span>
+                </div>
+                <div class="flex justify-between items-center bg-muji-base p-3 rounded">
+                    <span class="text-xs font-bold text-muji-red">折合港幣 (HKD)</span>
+                    <span id="fund-balance-hkd" class="font-mono font-bold text-xl text-muji-red">$ 0.00</span>
+                </div>
+            </div>
+        </div>
 
-        function hideLoading(loadingElement, resultsElement) {
-            loadingElement.classList.add('hidden');
-            resultsElement.classList.remove('hidden');
-        }
-
-        /**
-         * Generic function to toggle the accordion (expand/collapse)
-         */
-        async function toggleAccordion(btn, content, loading, generator, isGenerated, setGenerated) {
-            const isActive = content.classList.toggle('active');
-            const arrow = btn.querySelector('svg');
+        <!-- 分帳工具 (互換後的位置：下) -->
+        <div class="muji-card p-6 mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-[10px] font-bold text-muji-stone tracking-widest uppercase">Split Bill / 分帳工具 (每人)</h3>
+            </div>
+            <div class="space-y-4">
+                <div class="relative">
+                    <span class="absolute left-2 top-2 text-[10px] text-muji-muted font-bold uppercase">Total JPY / 總金額</span>
+                    <input type="number" id="split-total" placeholder="0" oninput="splitBill()" class="w-full bg-muji-base border-b border-muji-border pt-5 pb-2 px-2 font-mono font-bold outline-none text-lg">
+                </div>
+                <div class="relative">
+                    <span class="absolute left-2 top-2 text-[10px] text-muji-muted font-bold uppercase">People / 人數</span>
+                    <input type="number" id="split-people" value="4" oninput="splitBill()" class="w-full bg-muji-base border-b border-muji-border pt-5 pb-2 px-2 font-mono font-bold outline-none text-lg">
+                </div>
+            </div>
             
-            if (isActive) {
-                arrow.classList.add('rotate-180');
-                if (!isGenerated) {
-                    await generator(content, loading, setGenerated);
-                }
-            } else {
-                arrow.classList.remove('rotate-180');
-            }
+            <div id="split-result-box" class="mt-6 pt-4 border-t border-dashed border-muji-border">
+                <div class="flex justify-between items-end mb-2">
+                    <span class="text-xs text-muji-muted font-medium">每人應付 (JPY)</span>
+                    <span id="res-jpy-person" class="font-mono font-bold text-lg">¥ 0</span>
+                </div>
+                <div class="flex justify-between items-end">
+                    <span class="text-xs text-muji-red font-bold">每人折合 (HKD)</span>
+                    <span id="res-hkd-person" class="font-mono font-bold text-xl text-muji-red">$ 0.00</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== PAGE: LISTS ==================== -->
+    <section id="page-lists" class="page-section px-5 max-w-2xl mx-auto">
+        <div class="flex items-center gap-3 mb-8">
+            <h2 class="text-2xl font-bold text-muji-text">Checklist</h2>
+            <span class="h-px bg-muji-border flex-1"></span>
+        </div>
+        <div class="space-y-8 pb-10">
+            <div>
+                <h3 class="text-[10px] font-bold text-muji-red mb-3 tracking-widest uppercase border-b border-muji-red pb-1">Elderly Winter Essentials / 長者冬日備品</h3>
+                <div class="space-y-3 bg-white p-4 rounded border border-muji-border">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" class="mt-1 w-4 h-4 accent-muji-red">
+                        <span class="text-sm">發熱內衣/褲 (建議洋蔥式穿法)</span>
+                    </label>
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" class="mt-1 w-4 h-4 accent-muji-red">
+                        <span class="text-sm">防滑走路鞋 (雪地與碎石路)</span>
+                    </label>
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" class="mt-1 w-4 h-4 accent-muji-red">
+                        <span class="text-sm">保溫瓶 (隨身暖胃必備)</span>
+                    </label>
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" class="mt-1 w-4 h-4 accent-muji-red">
+                        <span class="text-sm">暖包、暖貼、防乾燥乳液</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== PAGE: INFO ==================== -->
+    <section id="page-info" class="page-section px-5 max-w-2xl mx-auto">
+        <div class="flex items-center gap-3 mb-8">
+            <h2 class="text-2xl font-bold text-muji-text">Info</h2>
+            <span class="h-px bg-muji-border flex-1"></span>
+        </div>
+
+        <!-- 天氣預報連結 -->
+        <div class="muji-card p-6 mb-8">
+            <h3 class="text-[10px] font-bold text-muji-muted mb-4 uppercase tracking-widest">Weather Forecast / 天氣預報</h3>
+            <div class="grid grid-cols-3 gap-3">
+                <a href="https://weather.yahoo.co.jp/weather/jp/23/5110.html" target="_blank" class="bg-muji-base p-3 rounded text-center transition-opacity hover:opacity-80">
+                    <i class="fa-solid fa-cloud-sun text-blue-500 mb-2"></i>
+                    <p class="text-[10px] font-bold">名古屋</p>
+                </a>
+                <a href="https://weather.yahoo.co.jp/weather/jp/24/5310.html" target="_blank" class="bg-muji-base p-3 rounded text-center transition-opacity hover:opacity-80">
+                    <i class="fa-solid fa-umbrella text-blue-500 mb-2"></i>
+                    <p class="text-[10px] font-bold">伊勢</p>
+                </a>
+                <a href="https://weather.yahoo.co.jp/weather/jp/21/5220.html" target="_blank" class="bg-muji-base p-3 rounded text-center transition-opacity hover:opacity-80">
+                    <i class="fa-solid fa-snowflake text-blue-500 mb-2"></i>
+                    <p class="text-[10px] font-bold">高山</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- 地圖查詢工具 -->
+        <div class="muji-card p-6 mb-8">
+            <h3 class="text-[10px] font-bold text-muji-muted mb-4 uppercase tracking-widest">Map Search / 地圖查詢</h3>
+            <div class="flex gap-2">
+                <input type="text" id="map-query" placeholder="輸入景點或地址..." class="flex-1 bg-muji-base border-b border-muji-border py-2 px-3 text-sm outline-none">
+                <button onclick="searchMap()" class="bg-muji-text text-white px-4 py-2 rounded-sm text-[10px] font-bold tracking-widest hover:bg-black">SEARCH</button>
+            </div>
+            <p class="text-[9px] text-muji-muted mt-3 italic">* 點擊搜尋後將開啟 Google Maps 查看詳細定位。</p>
+        </div>
+
+        <div class="muji-card p-6 mb-8">
+            <p class="text-[10px] text-muji-muted mb-4 uppercase tracking-widest font-bold">Emergency Contacts / 緊急聯繫</p>
+            <div class="space-y-2 text-sm">
+                <p><span class="font-bold">Police (警察):</span> 110 | <span class="font-bold">Ambulance (救護):</span> 119</p>
+                <p class="pt-4 text-[10px] font-bold uppercase tracking-widest text-muji-muted">Accommodation / 住宿資訊</p>
+                <div class="space-y-4 mt-2">
+                    <div>
+                        <p class="font-bold text-base">Hotel Resol Nagoya</p>
+                        <p class="text-xs text-muji-muted italic">名古屋站步行4分鐘。U8出口到達！</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-base">Comfort Hotel Ise</p>
+                        <p class="text-xs text-muji-muted italic">伊勢市站南口步行3分鐘。</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-base">Nagoya JR Gate Tower Hotel</p>
+                        <p class="text-xs text-muji-muted italic">直通 JR 名古屋站，百貨公司上方。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-muji-border px-6 pt-3 pb-6 z-50 flex justify-between items-center">
+        <button onclick="switchTab('plan')" class="nav-btn active flex flex-col items-center w-12" data-target="plan">
+            <i class="fa-regular fa-calendar text-xl mb-1"></i>
+            <span class="text-[9px] font-bold tracking-widest">PLAN</span>
+        </button>
+        <button onclick="switchTab('guide')" class="nav-btn flex flex-col items-center w-12" data-target="guide">
+            <i class="fa-regular fa-map text-xl mb-1"></i>
+            <span class="text-[9px] font-bold tracking-widest">GUIDE</span>
+        </button>
+        <button onclick="switchTab('wallet')" class="nav-btn flex flex-col items-center w-12" data-target="wallet">
+            <i class="fa-solid fa-yen-sign text-xl mb-1"></i>
+            <span class="text-[9px] font-bold tracking-widest">WALLET</span>
+        </button>
+        <button onclick="switchTab('lists')" class="nav-btn flex flex-col items-center w-12" data-target="lists">
+            <i class="fa-regular fa-clipboard text-xl mb-1"></i>
+            <span class="text-[9px] font-bold tracking-widest">LISTS</span>
+        </button>
+        <button onclick="switchTab('info')" class="nav-btn flex flex-col items-center w-12" data-target="info">
+            <i class="fa-solid fa-circle-info text-xl mb-1"></i>
+            <span class="text-[9px] font-bold tracking-widest">INFO</span>
+        </button>
+    </nav>
+
+    <script>
+        const tripData = [
+            { day: 1, date: "1/2 (週五)", weather: "晴時々曇", items: [{ time: "14:30", title: "UO680抵達", desc: "中部國際機場 (NGO)" }, { time: "18:00", title: "榮町商圈", desc: "綠洲21夜景及散步" }] },
+            { day: 2, date: "1/3 (週六)", weather: "晴", items: [{ time: "09:00", title: "早餐推薦", desc: "TSUBAME PAN＆Milk名站店" }, { time: "10:30", title: "名古屋城/德川園", desc: "新春市集活動" }, { time: "15:00", title: "名花之里", desc: "觀賞冬季點燈" }] },
+            { day: 3, date: "1/4 (週日)", weather: "晴", items: [{ time: "10:10", title: "近鐵特急", desc: "名古屋往伊勢市" }, { time: "15:00", title: "伊勢神宮", desc: "外宮參拜" }] },
+            { day: 4, date: "1/5 (週一)", weather: "多雲", items: [{ time: "09:00", title: "伊勢神宮", desc: "內宮參拜及逛御蔭橫丁" }, { time: "15:19", title: "二見浦", desc: "觀賞夫婦岩" }] },
+            { day: 5, date: "1/6 (週二)", weather: "晴", items: [{time: "10:00", title: "松阪散策", desc: "松阪城附近及午飯"}, { time: "16:15", title: "近鐵特急", desc: "返回名古屋" }] },
+            { day: 6, date: "1/7 (週三)", weather: "雪/晴", items: [{ time: "08:15", title: "一日遊集合", desc: "高山市及白川鄉一日遊" }, { time: "18:30", title: "返回名站", desc: "行程結束" }] },
+            { day: 7, date: "1/8 (週四)", weather: "晴", items: [{ time: "10:00", title: "大須商店街", desc: "購物時間" }, { time: "19:00", title: "馬喰一代", desc: "飛驒牛燒肉" }] },
+            { day: 8, date: "1/9 (週五)", weather: "晴", items: [{time: "12:31", title: "前往機場", desc: "名鐵特急" }, { time: "15:25", title: "UO681返港", desc: "賦歸" }] }
+        ];
+
+        function switchTab(id) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('active');
+                if(b.dataset.target === id) b.classList.add('active');
+            });
+            window.scrollTo(0,0);
         }
 
-        // --- Feature 1: Packing List Generator ---
-        async function generatePackingList(contentElement, loadingElement, setGenerated) {
-            showLoading(loadingElement, packingListResults);
-
-            const systemInstruction = {
-                parts: [{ text: "你是一位專業的旅遊規劃助理。請根據以下旅行細節，生成一份詳細的行李清單。由於是冬季（1月）前往白川鄉、名古屋和伊勢，且有長者同行，請強調保暖、防滑和長者護理用品。請以結構化的 JSON 格式回應，包含數個分類。" }]
-            };
-            
-            const userQuery = "8天7夜，日本名古屋、三重縣、白川鄉。時間：1月（冬季），有長者同行，需考慮保暖和長途移動舒適度。請生成一份實用的行李清單。";
-
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                systemInstruction: systemInstruction,
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "ARRAY",
-                        items: {
-                            type: "OBJECT",
-                            properties: {
-                                "category": { "type": "STRING", description: "例如: 衣物 (保暖), 藥品與護理, 旅遊必需品" },
-                                "items": {
-                                    "type": "ARRAY",
-                                    "items": { "type": "STRING" },
-                                    description: "該分類下的建議清單項目"
-                                }
-                            },
-                            "propertyOrdering": ["category", "items"]
-                        }
-                    }
-                }
-            };
-
-            try {
-                const response = await fetchWithRetry(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const result = await response.json();
-                
-                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!jsonText) throw new Error("API response is empty or malformed.");
-
-                const packingList = JSON.parse(jsonText);
-                
-                // --- RENDER & SAVE LOGIC HERE ---
-                renderPackingListUI(packingList);
-                setGenerated(true);
-
-            } catch (error) {
-                packingListResults.innerHTML = `<p class="text-red-500 p-4">生成清單時發生錯誤，請稍後再試。 (${error.message})</p>`;
-            } finally {
-                hideLoading(loadingElement, packingListResults);
-            }
-        }
-
-        // --- Feature 2: Emergency Phrase Generator ---
-        async function generatePhrases(contentElement, loadingElement, setGenerated) {
-            showLoading(loadingElement, phrasesResults);
-
-            const systemInstruction = {
-                parts: [{ text: "你是一位專業的日本旅遊口譯員。請生成 5 個在旅行中（特別是有長者同行時）最實用且急需的日語求助短語。回應需使用 JSON 格式，包含: 繁體中文, 日語發音 (羅馬拼音), 日語原文。" }]
-            };
-
-            const userQuery = "請生成 5 個關於協助長者、醫療求助或尋找設施的實用日語短語。";
-
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                systemInstruction: systemInstruction,
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "ARRAY",
-                        items: {
-                            type: "OBJECT",
-                            properties: {
-                                "chinese": { "type": "STRING" },
-                                "romaji": { "type": "STRING" },
-                                "japanese": { "type": "STRING" }
-                            },
-                            "propertyOrdering": ["chinese", "romaji", "japanese"]
-                        }
-                    }
-                }
-            };
-
-            try {
-                const response = await fetchWithRetry(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const result = await response.json();
-                
-                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!jsonText) throw new Error("API response is empty or malformed.");
-
-                const phrases = JSON.parse(jsonText);
-                let html = '';
-
-                phrases.forEach((p, index) => {
-                    html += `
-                        <div class="p-4 bg-white rounded-xl border border-pink-200 transition-shadow duration-300 hover:shadow-md">
-                            <p class="text-sm font-bold text-pink-600">${index + 1}. ${p.chinese}</p>
-                            <p class="text-xl font-mono mt-1 text-stone-800">${p.japanese}</p>
-                            <p class="text-xs text-stone-400 italic mt-1">(${p.romaji})</p>
+        function renderItinerary() {
+            const container = document.getElementById('itinerary-list');
+            if(!container) return;
+            container.innerHTML = tripData.map(day => `
+                <div class="mb-10">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-muji-red text-white flex flex-col items-center justify-center rounded-sm">
+                            <span class="text-[9px] font-bold">DAY</span>
+                            <span class="text-lg font-bold">${day.day}</span>
                         </div>
-                    `;
-                });
-                
-                phrasesResults.innerHTML = html;
-                setGenerated(true);
-
-            } catch (error) {
-                phrasesResults.innerHTML = `<p class="text-red-500 p-4">生成用語時發生錯誤，請稍後再試。 (${error.message})</p>`;
-            } finally {
-                hideLoading(loadingElement, phrasesResults);
-            }
+                        <div>
+                            <h3 class="font-bold text-sm tracking-tight">${day.date}</h3>
+                            <p class="text-[10px] font-bold text-muji-muted uppercase tracking-widest">${day.weather}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4 ml-6 border-l border-muji-border pl-6">
+                        ${day.items.map(item => `
+                            <div class="relative">
+                                <div class="absolute -left-[31px] top-2 w-2 h-2 rounded-full bg-muji-border border-2 border-white"></div>
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] font-bold font-mono text-muji-muted">${item.time}</span>
+                                    <h4 class="text-sm font-bold text-muji-text">${item.title}</h4>
+                                    <p class="text-xs text-stone-500 mt-0.5">${item.desc}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
         }
 
-        // --- Event Listeners and Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Attach Gemini feature event listeners
-            packingListBtn.addEventListener('click', () => {
-                toggleAccordion(
-                    packingListBtn, 
-                    packingListContent, 
-                    packingListLoading, 
-                    generatePackingList, 
-                    isPackingListGenerated,
-                    (status) => isPackingListGenerated = status
-                );
-            });
-            
-            phrasesBtn.addEventListener('click', () => {
-                toggleAccordion(
-                    phrasesBtn, 
-                    phrasesContent, 
-                    phrasesLoading, 
-                    generatePhrases, 
-                    isPhrasesGenerated,
-                    (status) => isPhrasesGenerated = status
-                );
-            });
+        function updateAllCalculations() {
+            calculate();
+            splitBill();
+            updateFund();
+        }
 
-            // Save button listener
-            saveBtn.addEventListener('click', saveItinerary);
-            
-            // Initialize Firebase and load data
-            initializeFirebase();
-        });
+        function calculate() {
+            const jpy = document.getElementById('calc-input').value;
+            const rate = document.getElementById('exchange-rate').value;
+            const res = (jpy * rate).toFixed(2);
+            document.getElementById('calc-result').textContent = res + ' HKD';
+        }
+
+        function splitBill() {
+            const total = parseFloat(document.getElementById('split-total').value);
+            const people = parseInt(document.getElementById('split-people').value);
+            const rate = parseFloat(document.getElementById('exchange-rate').value);
+            if (isNaN(total) || isNaN(people) || people <= 0) return;
+            const jpyPerPerson = Math.ceil(total / people);
+            const hkdPerPerson = (jpyPerPerson * rate).toFixed(2);
+            document.getElementById('res-jpy-person').textContent = '¥ ' + jpyPerPerson.toLocaleString();
+            document.getElementById('res-hkd-person').textContent = '$ ' + hkdPerPerson;
+        }
+
+        function updateFund() {
+            const inbound = parseFloat(document.getElementById('fund-inbound').value) || 0;
+            const expenses = parseFloat(document.getElementById('fund-expenses').value) || 0;
+            const rate = parseFloat(document.getElementById('exchange-rate').value) || 0.052;
+            const balanceJpy = inbound - expenses;
+            const balanceHkd = (balanceJpy * rate).toFixed(2);
+            document.getElementById('fund-balance-jpy').textContent = '¥ ' + balanceJpy.toLocaleString();
+            document.getElementById('fund-balance-hkd').textContent = '$ ' + balanceHkd;
+            const balanceBox = document.getElementById('fund-balance-jpy');
+            if(balanceJpy < 0) balanceBox.classList.add('text-muji-red');
+            else balanceBox.classList.remove('text-muji-red');
+        }
+
+        function searchMap() {
+            const query = document.getElementById('map-query').value;
+            if(!query) return;
+            const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+            window.open(url, '_blank');
+        }
+
+        window.onload = renderItinerary;
     </script>
 </body>
 </html>
